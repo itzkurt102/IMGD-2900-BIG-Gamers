@@ -10,11 +10,13 @@ Last revision: 2022-03-15 (BM)
 // Mod 1: 32 "Levels" that now require you to click every bead, starting with a 2x2 and ending with 32x32
 // Mod 2: Updating Status Display that shows you how many beads left
 // Mod 3: Beads are set to a random color upon touch, and reset to white when touched again
-// Mod 4: Plays a "victory" sound once you complete the level or start a new one
+// Mod 4: Plays a "victory" sound once you complete the level
 // Mod 5: Sets the background to a random dark color.
 // Mod 6: Changed the "click" noise
 // Mod 7: Added a noise when unfilling a bead
-// Mod 8: Added background music (pretty low volume)
+// Mod 8: Changed the noise when filling a bead
+// Mod 9: Added a victory noise once completing level 32 (and then it resets to the first level) - Hard to manually achieve
+// Mod 10: Plays a sound when you start the next level
 
 "use strict"; // Do NOT remove this directive!
 
