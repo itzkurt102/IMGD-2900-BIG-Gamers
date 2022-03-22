@@ -11,9 +11,9 @@ Last revision: 2022-03-15 (BM)
 // Mod 2: Updating Status Display that shows you how many beads left
 // Mod 3: Beads are set to a random color upon touch, and reset to white when touched again
 // Mod 4: Plays a "victory" sound once you complete the level
-// Mod 5: Sets the background to a random dark color.
-// Mod 6: Changed the "click" noise
-// Mod 7: Added a noise when unfilling a bead
+// Mod 5: Sets the background of each new level to a random dark color.
+// Mod 6: Changed the fill (click) noise
+// Mod 7: Added a noise when un-filling a bead
 // Mod 8: Changed the noise when filling a bead
 // Mod 9: Added a victory noise once completing level 32 (and then it resets to the first level) - Hard to manually achieve
 // Mod 10: Plays a sound when you start the next level
