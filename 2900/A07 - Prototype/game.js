@@ -50,9 +50,9 @@ Any value returned is ignored.
 
 var G = {
 
-    FRAME_RATE: 10,
-    GRID_WIDTH: 8,
-    GRID_HEIGHT: 8,
+    FRAME_RATE: 6,
+    GRID_WIDTH: 20,
+    GRID_HEIGHT: 20,
     sprites: [],
     spriteDir: [],
     spriteCol: [],
@@ -60,15 +60,25 @@ var G = {
     spriteActive: [],
 
     collide : function(s1, p1, s2, p2, type) {
-        if(type == PS.SPRITE_OVERLAP) {
+        if(type === PS.SPRITE_OVERLAP) {
             //Deal with collision
             var i = G.sprites.indexOf(s1);
             var j = G.sprites.indexOf(s2);
-            if(G.spriteActive[i] && G.spriteActive[j] && p1 == 1 && p2 == 1) {
-                G.spriteActive[j] = false;
-                PS.spritePlane(s2, 0);
-                PS.spriteShow(s2, false);
-                //PS.spriteDelete(s2);
+
+            //If both of the sprites included in the collision are currently active AND the collision is on plane 1
+            if(G.spriteActive[i] && G.spriteActive[j] && p1 === 1 && p2 === 1) {
+                //Deactivating first sprite
+                G.spriteActive[i] = false;
+                PS.spritePlane(s1, 0);
+                PS.spriteShow(s1, false);
+
+                var color1 = G.spriteCol[i];
+                var color2 = G.spriteCol[j];
+                var combColor = [(color1[0]+color2[0])/2, (color1[1]+color2[1])/2, (color1[2]+color2[2])/2];
+
+                PS.spriteSolidColor(s2, combColor);
+
+
             }
 
         }
@@ -119,6 +129,7 @@ var G = {
                     G.spriteDir[i][1] = dy * -1; //reverse dy
                 }
 
+
                 PS.spriteMove(G.sprites[i], x, y);
                 G.spriteLoc[i] = [x, y];
 
@@ -146,7 +157,7 @@ PS.init = function( system, options ) {
 	// Uncomment the following code line and change
 	// the x and y parameters as needed.
 
-	PS.gridSize( 8, 8 );
+	PS.gridSize( 20, 20 );
 
 	// This is also a good place to display
 	// your game title or a welcome message
@@ -157,6 +168,9 @@ PS.init = function( system, options ) {
 	PS.statusText( "Game" );
 
     PS.timerStart( G.FRAME_RATE, G.tick );
+
+    PS.radius(PS.ALL, PS.ALL, 50);
+    PS.border(PS.ALL, PS.ALL, 0);
 
 	// Add any other initialization code you need here.
 };
