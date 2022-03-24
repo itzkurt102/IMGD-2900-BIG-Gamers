@@ -56,73 +56,101 @@ var G = {
     sprites: [],
     spriteDir: [],
     spriteCol: [],
-    spriteLoc: [],
-    spriteActive: [],
 
-    collide : function(s1, p1, s2, p2, type) {
-        if(type == PS.SPRITE_OVERLAP) {
-            //Deal with collision
-            var i = G.sprites.indexOf(s1);
-            var j = G.sprites.indexOf(s2);
-            if(G.spriteActive[i] && G.spriteActive[j] && p1 == 1 && p2 == 1) {
-                G.spriteActive[j] = false;
-                PS.spritePlane(s2, 0);
-                PS.spriteShow(s2, false);
-                //PS.spriteDelete(s2);
-            }
-
-        }
-
+    collide : function() {
+        PS.debug("Collided");
     },
 
     tick : function() {
         "use strict";
-        var len, i, x, y, dx, dy;
+        var len, i, x, y, dx, dy, col, oldData, j;
 
         len = G.sprites.length; // number of active beads
 
 
         i = 0;
         while (i < len) {
-            if(G.spriteActive[i]) {
-                //Grabbing the information we need
-                x = G.spriteLoc[i][0];
-                y = G.spriteLoc[i][1];
-                dx = G.spriteDir[i][0];
-                dy = G.spriteDir[i][1];
+            x = G.beadsX[i];
+            y = G.beadsY[i];
+            //PS.debug(i + ", " + x + ", " + y + "\n");
+            dx = PS.data(x, y)[0][0];
+            dy = PS.data(x, y)[0][1];
+            col = PS.data(x, y)[1];
 
-                //setting new x and y values according to direction
-                x += dx;
-                y += dy;
+            //save old data
+            oldData = PS.data(x, y);
+
+            //resetting "last" bead
+            PS.data(x, y, 0);
+            PS.color(x, y, PS.COLOR_WHITE);
 
 
-                //check if out of bounds. If so, make it stay in bounds and reverse direction
-                if(x < 0) {
-                    x = 0;
-                    G.spriteDir[i][0] = dx * -1; //reverse dx
-                    G.spriteDir[i][1] = dy * -1; //reverse dy
-                }
-                else if(x > G.GRID_WIDTH - 1) {
-                    x = G.GRID_WIDTH -1 ;
-                    G.spriteDir[i][0] = dx * -1; //reverse dx
-                    G.spriteDir[i][1] = dy * -1; //reverse dy
-                }
+            x += dx;
+            y += dy;
 
-                if(y < 0) {
-                    y = 0;
-                    G.spriteDir[i][0] = dx * -1; //reverse dx
-                    G.spriteDir[i][1] = dy * -1; //reverse dy
-                }
-                else if(y > G.GRID_HEIGHT - 1) {
-                    y = G.GRID_HEIGHT -1;
-                    G.spriteDir[i][0] = dx * -1; //reverse dx
-                    G.spriteDir[i][1] = dy * -1; //reverse dy
-                }
-
-                PS.spriteMove(G.sprites[i], x, y);
-                G.spriteLoc[i] = [x, y];
-
+            //check if out of bounds. If so, make it stay in bounds and reverse direction
+            if(x < 0) {
+                x = 0;
+                oldData[0][0] = dx * -1; //reverse dx
+                oldData[0][1] = dy * -1; //reverse dy
             }
+            else if(x > G.GRID_WIDTH - 1) {
+                x = G.GRID_WIDTH -1 ;
+                oldData[0][0] = dx * -1; //reverse dx
+                oldData[0][1] = dy * -1; //reverse dy
+            }
+
+            if(y < 0) {
+                y = 0;
+                oldData[0][0] = dx * -1; //reverse dx
+                oldData[0][1] = dy * -1; //reverse dy
+            }
+            else if(y > G.GRID_HEIGHT - 1) {
+                y = G.GRID_HEIGHT -1;
+                oldData[0][0] = dx * -1; //reverse dx
+                oldData[0][1] = dy * -1; //reverse dy
+            }
+
+            //Check for collision with other bead?
+
+
+            //Check for collisions
+            /* j = 0;
+             while (j < len) {
+                 if(j != i && x == G.beadsX[j] && y == G.beadsY[j]) {
+                     //Deal with collision
+                     PS.debug("Collision\n");
+
+                     G.beadsX.splice(i, 1); //delete one of the beads
+                     G.beadsY.splice(i, 1); //delete one of the beads
+                     len -= 1;
+
+
+
+                     var color1 = col;
+                     var color2 = PS.data(x, y)[1];
+                     var combColor = [(color1[0]+color2[0])/2, (color1[1]+color2[1])/2, (color1[2]+color2[2])/2];
+                     col = combColor;
+                     oldData[1] = col;
+
+                     PS.data(x, y, oldData);
+                     PS.color( x, y, col);
+                     G.beadsX[j] = x;
+                     G.beadsY[j] = y;
+
+                     break;
+                 }
+
+                 j += 1;
+             }*/
+
+            PS.data(x, y, oldData);
+            PS.color( x, y, col);
+            G.beadsX[i] = x;
+            G.beadsY[i] = y;
+
+
+
             i += 1;
         }
     },
@@ -131,34 +159,34 @@ var G = {
 
 
 PS.init = function( system, options ) {
-	// Uncomment the following code line
-	// to verify operation:
+    // Uncomment the following code line
+    // to verify operation:
 
-	// PS.debug( "PS.init() called\n" );
+    // PS.debug( "PS.init() called\n" );
 
-	// This function should normally begin
-	// with a call to PS.gridSize( x, y )
-	// where x and y are the desired initial
-	// dimensions of the grid.
-	// Call PS.gridSize() FIRST to avoid problems!
-	// The sample call below sets the grid to the
-	// default dimensions (8 x 8).
-	// Uncomment the following code line and change
-	// the x and y parameters as needed.
+    // This function should normally begin
+    // with a call to PS.gridSize( x, y )
+    // where x and y are the desired initial
+    // dimensions of the grid.
+    // Call PS.gridSize() FIRST to avoid problems!
+    // The sample call below sets the grid to the
+    // default dimensions (8 x 8).
+    // Uncomment the following code line and change
+    // the x and y parameters as needed.
 
-	PS.gridSize( 8, 8 );
+    PS.gridSize( 8, 8 );
 
-	// This is also a good place to display
-	// your game title or a welcome message
-	// in the status line above the grid.
-	// Uncomment the following code line and
-	// change the string parameter as needed.
+    // This is also a good place to display
+    // your game title or a welcome message
+    // in the status line above the grid.
+    // Uncomment the following code line and
+    // change the string parameter as needed.
 
-	PS.statusText( "Game" );
+    PS.statusText( "Game" );
 
     PS.timerStart( G.FRAME_RATE, G.tick );
 
-	// Add any other initialization code you need here.
+    // Add any other initialization code you need here.
 };
 
 /*
@@ -173,24 +201,23 @@ This function doesn't have to do anything. Any value returned is ignored.
 
 PS.touch = function( x, y, data, options ) {
 
-    //Create sprite at the location and set to a random color
-    var newSprite;
 
-    newSprite = PS.spriteSolid(1, 1);
+    var len, i, x, y;
+
+    len = G.beadsX.length; // number of active beads
 
 
+    i = 0;
+    while (i < len) {
+        if(x == G.beadsX[i] && y == G.beadsY[i]) {
+            return;
+        }
+        i += 1;
+    }
+
+    //"spawns" bead at location
     var rand_color = [PS.random(255), PS.random(255), PS.random(255)];
-
-    PS.spriteSolidColor(newSprite, rand_color);
-    PS.spriteMove(newSprite, x, y);
-    PS.spriteCollide(newSprite, G.collide);
-    PS.spritePlane(newSprite, 1);
-
-    G.sprites.push(newSprite);
-    G.spriteCol.push(rand_color);
-    G.spriteLoc.push([x,y]);
-    G.spriteActive.push(true);
-
+    PS.color( x, y, rand_color ); // set color to current value of data
 
     //Move in a random direction
     var dx = (PS.random(1000) % 3) - 1; //randomly generated dx -1, 0, 1
@@ -201,12 +228,18 @@ PS.touch = function( x, y, data, options ) {
         dx = 1;
     }
 
-    G.spriteDir.push([dx, dy]);
+    PS.data(x, y, [[dx, dy], rand_color]);
+
+    G.beadsX.push(x);
+    G.beadsY.push(y);
 
 
 
-	// Add code here for mouse clicks/touches
-	// over a bead.
+
+
+
+    // Add code here for mouse clicks/touches
+    // over a bead.
 };
 
 /*
@@ -220,11 +253,11 @@ This function doesn't have to do anything. Any value returned is ignored.
 */
 
 PS.release = function( x, y, data, options ) {
-	// Uncomment the following code line to inspect x/y parameters:
+    // Uncomment the following code line to inspect x/y parameters:
 
-	// PS.debug( "PS.release() @ " + x + ", " + y + "\n" );
+    // PS.debug( "PS.release() @ " + x + ", " + y + "\n" );
 
-	// Add code here for when the mouse button/touch is released over a bead.
+    // Add code here for when the mouse button/touch is released over a bead.
 };
 
 /*
@@ -238,11 +271,11 @@ This function doesn't have to do anything. Any value returned is ignored.
 */
 
 PS.enter = function( x, y, data, options ) {
-	// Uncomment the following code line to inspect x/y parameters:
+    // Uncomment the following code line to inspect x/y parameters:
 
-	// PS.debug( "PS.enter() @ " + x + ", " + y + "\n" );
+    // PS.debug( "PS.enter() @ " + x + ", " + y + "\n" );
 
-	// Add code here for when the mouse cursor/touch enters a bead.
+    // Add code here for when the mouse cursor/touch enters a bead.
 };
 
 /*
@@ -256,11 +289,11 @@ This function doesn't have to do anything. Any value returned is ignored.
 */
 
 PS.exit = function( x, y, data, options ) {
-	// Uncomment the following code line to inspect x/y parameters:
+    // Uncomment the following code line to inspect x/y parameters:
 
-	// PS.debug( "PS.exit() @ " + x + ", " + y + "\n" );
+    // PS.debug( "PS.exit() @ " + x + ", " + y + "\n" );
 
-	// Add code here for when the mouse cursor/touch exits a bead.
+    // Add code here for when the mouse cursor/touch exits a bead.
 };
 
 /*
@@ -271,11 +304,11 @@ This function doesn't have to do anything. Any value returned is ignored.
 */
 
 PS.exitGrid = function( options ) {
-	// Uncomment the following code line to verify operation:
+    // Uncomment the following code line to verify operation:
 
-	// PS.debug( "PS.exitGrid() called\n" );
+    // PS.debug( "PS.exitGrid() called\n" );
 
-	// Add code here for when the mouse cursor/touch moves off the grid.
+    // Add code here for when the mouse cursor/touch moves off the grid.
 };
 
 /*
@@ -289,11 +322,11 @@ This function doesn't have to do anything. Any value returned is ignored.
 */
 
 PS.keyDown = function( key, shift, ctrl, options ) {
-	// Uncomment the following code line to inspect first three parameters:
+    // Uncomment the following code line to inspect first three parameters:
 
-	// PS.debug( "PS.keyDown(): key=" + key + ", shift=" + shift + ", ctrl=" + ctrl + "\n" );
+    // PS.debug( "PS.keyDown(): key=" + key + ", shift=" + shift + ", ctrl=" + ctrl + "\n" );
 
-	// Add code here for when a key is pressed.
+    // Add code here for when a key is pressed.
 };
 
 /*
@@ -307,11 +340,11 @@ This function doesn't have to do anything. Any value returned is ignored.
 */
 
 PS.keyUp = function( key, shift, ctrl, options ) {
-	// Uncomment the following code line to inspect first three parameters:
+    // Uncomment the following code line to inspect first three parameters:
 
-	// PS.debug( "PS.keyUp(): key=" + key + ", shift=" + shift + ", ctrl=" + ctrl + "\n" );
+    // PS.debug( "PS.keyUp(): key=" + key + ", shift=" + shift + ", ctrl=" + ctrl + "\n" );
 
-	// Add code here for when a key is released.
+    // Add code here for when a key is released.
 };
 
 /*
@@ -324,7 +357,7 @@ NOTE: Currently, only mouse wheel events are reported, and only when the mouse c
 */
 
 PS.input = function( sensors, options ) {
-	// Uncomment the following code lines to inspect first parameter:
+    // Uncomment the following code lines to inspect first parameter:
 
 //	 var device = sensors.wheel; // check for scroll wheel
 //
@@ -332,6 +365,6 @@ PS.input = function( sensors, options ) {
 //	   PS.debug( "PS.input(): " + device + "\n" );
 //	 }
 
-	// Add code here for when an input event is detected.
+    // Add code here for when an input event is detected.
 };
 
