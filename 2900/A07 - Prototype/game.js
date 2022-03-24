@@ -50,7 +50,7 @@ Any value returned is ignored.
 
 var G = {
 
-    FRAME_RATE: 6,
+    FRAME_RATE: 3,
     GRID_WIDTH: 20,
     GRID_HEIGHT: 20,
     sprites: [],
@@ -87,11 +87,11 @@ var G = {
 
     tick : function() {
         "use strict";
-        var len, i, x, y, dx, dy;
+        var len, i, x, y, dx, dy, ballCount;
 
         len = G.sprites.length; // number of active beads
 
-
+        ballCount = 0;
         i = 0;
         while (i < len) {
             if(G.spriteActive[i]) {
@@ -107,35 +107,39 @@ var G = {
 
 
                 //check if out of bounds. If so, make it stay in bounds and reverse direction
-                if(x < 0) {
-                    x = 0;
+                if(x < 1) {
+                    x = 1;
                     G.spriteDir[i][0] = dx * -1; //reverse dx
-                    G.spriteDir[i][1] = dy * -1; //reverse dy
                 }
-                else if(x > G.GRID_WIDTH - 1) {
-                    x = G.GRID_WIDTH -1 ;
+                else if(x > G.GRID_WIDTH - 2) {
+                    x = G.GRID_WIDTH - 2;
                     G.spriteDir[i][0] = dx * -1; //reverse dx
-                    G.spriteDir[i][1] = dy * -1; //reverse dy
                 }
 
-                if(y < 0) {
-                    y = 0;
-                    G.spriteDir[i][0] = dx * -1; //reverse dx
+                if(y < 1) {
+                    y = 1;
                     G.spriteDir[i][1] = dy * -1; //reverse dy
                 }
-                else if(y > G.GRID_HEIGHT - 1) {
-                    y = G.GRID_HEIGHT -1;
-                    G.spriteDir[i][0] = dx * -1; //reverse dx
+                else if(y > G.GRID_HEIGHT - 2) {
+                    y = G.GRID_HEIGHT - 2;
                     G.spriteDir[i][1] = dy * -1; //reverse dy
                 }
 
 
                 PS.spriteMove(G.sprites[i], x, y);
                 G.spriteLoc[i] = [x, y];
-
+                ballCount += 1;
             }
             i += 1;
         }
+
+        if(ballCount == 0) {
+            PS.statusText("Click!");
+        }
+        else {
+            PS.statusText("Ball Count: " + ballCount);
+        }
+
     },
 }
 
@@ -165,12 +169,24 @@ PS.init = function( system, options ) {
 	// Uncomment the following code line and
 	// change the string parameter as needed.
 
-	PS.statusText( "Game" );
+	PS.statusText( "Click!" );
 
     PS.timerStart( G.FRAME_RATE, G.tick );
 
     PS.radius(PS.ALL, PS.ALL, 50);
     PS.border(PS.ALL, PS.ALL, 0);
+    PS.color(PS.ALL, PS.ALL, 0x9C9C9C);
+
+    //Wall Creation
+    var COLOR_WALL = PS.COLOR_BLACK; // wall color
+    PS.color( PS.ALL, 0, COLOR_WALL );
+    PS.color( PS.ALL, G.GRID_HEIGHT - 1, COLOR_WALL );
+    PS.color( 0, PS.ALL, COLOR_WALL );
+    PS.color( G.GRID_WIDTH - 1, PS.ALL, COLOR_WALL );
+
+    PS.gridColor(0x9C9C9C)
+
+
 
 	// Add any other initialization code you need here.
 };
@@ -186,6 +202,12 @@ This function doesn't have to do anything. Any value returned is ignored.
 */
 
 PS.touch = function( x, y, data, options ) {
+
+    //Don't let them create
+    if(x == 0 || x == G.GRID_WIDTH-1 || y == 0 || y == G.GRID_HEIGHT-1) {
+        return;
+    }
+
 
     //Create sprite at the location and set to a random color
     var newSprite;
