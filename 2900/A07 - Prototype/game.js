@@ -77,6 +77,7 @@ var G = {
                 var combColor = [(color1[0]+color2[0])/2, (color1[1]+color2[1])/2, (color1[2]+color2[2])/2];
 
                 PS.spriteSolidColor(s2, combColor);
+                PS.audioPlay("xylo_a5");
 
 
             }
@@ -110,19 +111,23 @@ var G = {
                 if(x < 1) {
                     x = 1;
                     G.spriteDir[i][0] = dx * -1; //reverse dx
+                    PS.audioPlay("xylo_a4");
                 }
                 else if(x > G.GRID_WIDTH - 2) {
                     x = G.GRID_WIDTH - 2;
                     G.spriteDir[i][0] = dx * -1; //reverse dx
+                    PS.audioPlay("xylo_c5");
                 }
 
                 if(y < 1) {
                     y = 1;
                     G.spriteDir[i][1] = dy * -1; //reverse dy
+                    PS.audioPlay("xylo_e5");
                 }
                 else if(y > G.GRID_HEIGHT - 2) {
                     y = G.GRID_HEIGHT - 2;
                     G.spriteDir[i][1] = dy * -1; //reverse dy
+                    PS.audioPlay("xylo_g5");
                 }
 
 
@@ -186,6 +191,12 @@ PS.init = function( system, options ) {
 
     PS.gridColor(0x9C9C9C)
 
+    PS.audioLoad("fx_pop");
+    PS.audioLoad("xylo_a4");
+    PS.audioLoad("xylo_c5");
+    PS.audioLoad("xylo_e5");
+    PS.audioLoad("xylo_g5");
+    //PS.audioLoad("xylo_c5");
 
 
 	// Add any other initialization code you need here.
@@ -221,6 +232,7 @@ PS.touch = function( x, y, data, options ) {
     PS.spriteMove(newSprite, x, y);
     PS.spriteCollide(newSprite, G.collide);
     PS.spritePlane(newSprite, 1);
+    PS.audioPlay("fx_pop");
 
     G.sprites.push(newSprite);
     G.spriteCol.push(rand_color);
