@@ -62,6 +62,9 @@ var G = {
     dcActiveColor: 0x24ab3d,
     dcDisabledColor: 0x5c786c,
     dcActiveDir: [0,0],
+    borderAnimLoc: [],
+    borderAnimDir: [],
+    borderAnimSprite: [],
 
     //Switches active direction for future balls
     switchDir : function(dx, dy) {
@@ -201,6 +204,28 @@ var G = {
         else {
             PS.statusText("Ball Count: " + ballCount);
         }
+
+        for(var s=0; s < 4; s++) {
+            //Move border animation
+            if(G.borderAnimLoc[s][0] == 0 && G.borderAnimLoc[s][1] == 0) {
+                G.borderAnimDir[s] = [1, 0];
+            }
+            else if(G.borderAnimLoc[s][0] == G.GRID_WIDTH-1 && G.borderAnimLoc[s][1] == 0) {
+                G.borderAnimDir[s] = [0, 1];
+            }
+            else if(G.borderAnimLoc[s][0] == G.GRID_WIDTH-1 && G.borderAnimLoc[s][1] == G.GRID_HEIGHT-1) {
+                G.borderAnimDir[s] = [-1, 0];
+            }
+            else if(G.borderAnimLoc[s][0] == 0 && G.borderAnimLoc[s][1] == G.GRID_HEIGHT-1) {
+                G.borderAnimDir[s] = [0, -1];
+            }
+            //Update location and move it there
+            G.borderAnimLoc[s][0] = G.borderAnimLoc[s][0]+G.borderAnimDir[s][0];
+            G.borderAnimLoc[s][1] = G.borderAnimLoc[s][1]+G.borderAnimDir[s][1];
+
+            PS.spriteMove(G.borderAnimSprite[s], G.borderAnimLoc[s][0], G.borderAnimLoc[s][1]);
+        }
+
 
     },
 
@@ -352,6 +377,40 @@ PS.init = function( system, options ) {
     PS.glyph(6, 22, 0x1D413);
 
 
+    //Border animation sprite
+    var newSprite1 = PS.spriteSolid(1, 1);
+    var newSprite2 = PS.spriteSolid(1, 1);
+    var newSprite3 = PS.spriteSolid(1, 1);
+    var newSprite4 = PS.spriteSolid(1, 1);
+
+    //Set sprite properties
+    PS.spritePlane(newSprite1, 1);
+    PS.spriteSolidColor(newSprite1, PS.COLOR_CYAN);
+    PS.spriteMove(newSprite1, 0,0);
+    G.borderAnimLoc.push([0,0]);
+    G.borderAnimDir.push([1,0]);
+    G.borderAnimSprite.push(newSprite1);
+
+    PS.spritePlane(newSprite2, 1);
+    PS.spriteSolidColor(newSprite2, PS.COLOR_CYAN);
+    PS.spriteMove(newSprite2, G.GRID_WIDTH-1,0);
+    G.borderAnimLoc.push([G.GRID_WIDTH-1,0]);
+    G.borderAnimDir.push([0,1]);
+    G.borderAnimSprite.push(newSprite2);
+
+    PS.spritePlane(newSprite3, 1);
+    PS.spriteSolidColor(newSprite3, PS.COLOR_CYAN);
+    PS.spriteMove(newSprite3, G.GRID_WIDTH-1,G.GRID_HEIGHT-1);
+    G.borderAnimLoc.push([G.GRID_WIDTH-1,G.GRID_HEIGHT-1]);
+    G.borderAnimDir.push([-1,0]);
+    G.borderAnimSprite.push(newSprite3);
+    
+    PS.spritePlane(newSprite4, 1);
+    PS.spriteSolidColor(newSprite4, PS.COLOR_CYAN);
+    PS.spriteMove(newSprite4, 0,G.GRID_HEIGHT-1);
+    G.borderAnimLoc.push([0,G.GRID_HEIGHT-1]);
+    G.borderAnimDir.push([0,-1]);
+    G.borderAnimSprite.push(newSprite4);
 
     //Load sounds
     PS.audioLoad("fx_pop");
