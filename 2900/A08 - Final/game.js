@@ -65,6 +65,7 @@ var G = {
     borderAnimLoc: [],
     borderAnimDir: [],
     borderAnimSprite: [],
+    dcBackgroundColor: 0x7c95f2,
 
     //Switches active direction for future balls
     switchDir : function(dx, dy) {
@@ -379,6 +380,9 @@ PS.init = function( system, options ) {
     PS.color(6, 22, G.dcDisabledColor);
     PS.glyph(6, 22, 0x1D413);
 
+    //Background color of menu area
+    PS.color(1, 21, G.dcBackgroundColor);PS.color(1, 22, G.dcBackgroundColor);PS.color(1, 23, G.dcBackgroundColor);PS.color(2, 21, G.dcBackgroundColor);PS.color(2, 23, G.dcBackgroundColor);PS.color(3, 21, G.dcBackgroundColor);PS.color(3, 23, G.dcBackgroundColor);PS.color(4, 21, G.dcBackgroundColor);PS.color(4, 23, G.dcBackgroundColor);PS.color(5, 21, G.dcBackgroundColor);PS.color(5, 23, G.dcBackgroundColor);PS.color(6, 21, G.dcBackgroundColor);PS.color(6, 23, G.dcBackgroundColor);PS.color(7, 21, G.dcBackgroundColor);PS.color(7, 22, G.dcBackgroundColor);PS.color(7, 23, G.dcBackgroundColor);PS.color(8, 21, G.dcBackgroundColor);PS.color(8, 22, G.dcBackgroundColor);PS.color(8, 23, G.dcBackgroundColor);PS.color(8, 21, G.dcBackgroundColor);PS.color(8, 22, G.dcBackgroundColor);PS.color(8, 23, G.dcBackgroundColor);PS.color(12, 21, G.dcBackgroundColor);PS.color(12, 22, G.dcBackgroundColor);PS.color(12, 23, G.dcBackgroundColor);PS.color(13, 21, G.dcBackgroundColor);PS.color(13, 22, G.dcBackgroundColor);PS.color(13, 23, G.dcBackgroundColor);PS.color(14, 21, G.dcBackgroundColor);PS.color(14, 22, G.dcBackgroundColor);PS.color(14, 23, G.dcBackgroundColor);PS.color(15, 21, G.dcBackgroundColor);PS.color(15, 22, G.dcBackgroundColor);PS.color(15, 23, G.dcBackgroundColor);PS.color(16, 21, G.dcBackgroundColor);PS.color(16, 22, G.dcBackgroundColor);PS.color(16, 23, G.dcBackgroundColor);PS.color(17, 21, G.dcBackgroundColor);PS.color(17, 22, G.dcBackgroundColor);PS.color(17, 23, G.dcBackgroundColor);PS.color(18, 21, G.dcBackgroundColor);PS.color(18, 22, G.dcBackgroundColor);PS.color(18, 23, G.dcBackgroundColor);PS.color(19, 21, G.dcBackgroundColor);PS.color(19, 22, G.dcBackgroundColor);PS.color(19, 23, G.dcBackgroundColor);
+
 
     //Border animation sprite
     var newSprite1 = PS.spriteSolid(1, 1);
@@ -414,6 +418,7 @@ PS.init = function( system, options ) {
     G.borderAnimLoc.push([0,G.GRID_HEIGHT-1]);
     G.borderAnimDir.push([0,-1]);
     G.borderAnimSprite.push(newSprite4);
+
 
     //Load sounds
     PS.audioLoad("fx_pop");
