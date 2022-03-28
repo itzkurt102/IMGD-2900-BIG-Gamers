@@ -59,13 +59,13 @@ var G = {
     spriteCol: [],
     spriteLoc: [],
     spriteActive: [],
-    dcActiveColor: 0x24ab3d,
-    dcDisabledColor: 0x5c786c,
+    dcActiveColor: 0x126B6B,
+    dcDisabledColor: 0xD8FFDB,
     dcActiveDir: [0,0],
     borderAnimLoc: [],
     borderAnimDir: [],
     borderAnimSprite: [],
-    dcBackgroundColor: 0x7c95f2,
+    dcBackgroundColor: 0x042326,
 
     //Switches active direction for future balls
     switchDir : function(dx, dy) {
