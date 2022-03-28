@@ -279,15 +279,18 @@ PS.init = function( system, options ) {
     PS.timerStart( G.FRAME_RATE, G.tick );
 
     //Set background color
-    PS.gridColor(0x9C9C9C)
+    PS.gridColor(0x022026);
+
+    //Set status color
+    PS.statusColor(0xF2BF5E);
 
     //Set defaults for play space
     PS.radius(PS.ALL, PS.ALL, 50);
     PS.border(PS.ALL, PS.ALL, 0);
-    PS.color(PS.ALL, PS.ALL, 0x9C9C9C);
+    PS.color(PS.ALL, PS.ALL, 0x022026);
 
     //Wall Creation
-    var COLOR_WALL = PS.COLOR_BLACK; // wall color
+    var COLOR_WALL = 0x4BA6A6; // wall color
     PS.color( PS.ALL, 0, COLOR_WALL );
     PS.radius(PS.ALL, 0, 0);
     PS.color( PS.ALL, G.GRID_HEIGHT - 1, COLOR_WALL );
@@ -385,28 +388,28 @@ PS.init = function( system, options ) {
 
     //Set sprite properties
     PS.spritePlane(newSprite1, 1);
-    PS.spriteSolidColor(newSprite1, PS.COLOR_CYAN);
+    PS.spriteSolidColor(newSprite1, 0xF2D14F);
     PS.spriteMove(newSprite1, 0,0);
     G.borderAnimLoc.push([0,0]);
     G.borderAnimDir.push([1,0]);
     G.borderAnimSprite.push(newSprite1);
 
     PS.spritePlane(newSprite2, 1);
-    PS.spriteSolidColor(newSprite2, PS.COLOR_CYAN);
+    PS.spriteSolidColor(newSprite2, 0xF2D14F);
     PS.spriteMove(newSprite2, G.GRID_WIDTH-1,0);
     G.borderAnimLoc.push([G.GRID_WIDTH-1,0]);
     G.borderAnimDir.push([0,1]);
     G.borderAnimSprite.push(newSprite2);
 
     PS.spritePlane(newSprite3, 1);
-    PS.spriteSolidColor(newSprite3, PS.COLOR_CYAN);
+    PS.spriteSolidColor(newSprite3, 0xF2D14F);
     PS.spriteMove(newSprite3, G.GRID_WIDTH-1,G.GRID_HEIGHT-1);
     G.borderAnimLoc.push([G.GRID_WIDTH-1,G.GRID_HEIGHT-1]);
     G.borderAnimDir.push([-1,0]);
     G.borderAnimSprite.push(newSprite3);
     
     PS.spritePlane(newSprite4, 1);
-    PS.spriteSolidColor(newSprite4, PS.COLOR_CYAN);
+    PS.spriteSolidColor(newSprite4, 0xF2D14F);
     PS.spriteMove(newSprite4, 0,G.GRID_HEIGHT-1);
     G.borderAnimLoc.push([0,G.GRID_HEIGHT-1]);
     G.borderAnimDir.push([0,-1]);
