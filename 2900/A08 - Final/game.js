@@ -66,6 +66,9 @@ var G = {
     borderAnimDir: [],
     borderAnimSprite: [],
     dcBackgroundColor: 0x042326,
+    sounds: [],
+    activeSoundSet: 0,
+    soundSetGlyph: 0x0031,
 
     //Switches active direction for future balls
     switchDir : function(dx, dy) {
@@ -171,23 +174,23 @@ var G = {
                 if(x < 1) {
                     x = 1;
                     G.spriteDir[i][0] = dx * -1; //reverse dx
-                    PS.audioPlay("xylo_a4");
+                    PS.audioPlay(G.sounds[G.activeSoundSet][0]);
                 }
                 else if(x > G.GRID_WIDTH - 2) {
                     x = G.GRID_WIDTH - 2;
                     G.spriteDir[i][0] = dx * -1; //reverse dx
-                    PS.audioPlay("xylo_c5");
+                    PS.audioPlay(G.sounds[G.activeSoundSet][1]);
                 }
 
                 if(y < 1) {
                     y = 1;
                     G.spriteDir[i][1] = dy * -1; //reverse dy
-                    PS.audioPlay("xylo_e5");
+                    PS.audioPlay(G.sounds[G.activeSoundSet][2]);
                 }
                 else if(y > G.GRID_HEIGHT - 2) {
                     y = G.GRID_HEIGHT - 2;
                     G.spriteDir[i][1] = dy * -1; //reverse dy
-                    PS.audioPlay("xylo_g5");
+                    PS.audioPlay(G.sounds[G.activeSoundSet][3]);
                 }
 
                 //Move the sprite and update its location
@@ -244,6 +247,44 @@ var G = {
         G.spriteCol = [];
         G.spriteLoc = [];
         G.spriteActive = [];
+
+        PS.color(2, 22, G.dcActiveColor);
+        PS.color(3, 22, G.dcActiveColor);
+        PS.color(4, 22, G.dcActiveColor);
+        PS.color(5, 22, G.dcActiveColor);
+        PS.color(6, 22, G.dcActiveColor);
+        PS.color(7, 22, G.dcActiveColor);
+        PS.color(2, 22, G.dcDisabledColor);
+        PS.color(3, 22, G.dcDisabledColor);
+        PS.color(4, 22, G.dcDisabledColor);
+        PS.color(5, 22, G.dcDisabledColor);
+        PS.color(6, 22, G.dcDisabledColor);
+        PS.color(7, 22, G.dcDisabledColor);
+
+    },
+
+    changeSounds : function(delta) {
+        var newSet = G.activeSoundSet + delta;
+
+        //Don't do anything if hitting upper/lower limit
+        if(newSet < 0 || newSet > 6) {
+            return;
+        }
+
+        G.activeSoundSet = newSet;
+        PS.glyph(13, 22, G.soundSetGlyph+delta);
+        G.soundSetGlyph = G.soundSetGlyph+delta;
+
+        if(delta == 1) {
+            PS.color(13, 21, G.dcActiveColor);
+            PS.color(13, 21, G.dcDisabledColor);
+        }
+        else {
+            PS.color(13, 23, G.dcActiveColor);
+            PS.color(13, 23, G.dcDisabledColor);
+        }
+
+
     },
 
 
@@ -294,12 +335,16 @@ PS.init = function( system, options ) {
     var COLOR_WALL = 0x4BA6A6; // wall color
     PS.color( PS.ALL, 0, COLOR_WALL );
     PS.radius(PS.ALL, 0, 0);
+    PS.fade(PS.ALL, 0, 10);
     PS.color( PS.ALL, G.GRID_HEIGHT - 1, COLOR_WALL );
     PS.radius(PS.ALL, G.GRID_HEIGHT - 1, 0);
+    PS.fade(PS.ALL, G.GRID_HEIGHT - 1, 10);
     PS.color( 0, PS.ALL, COLOR_WALL );
     PS.radius(0, PS.ALL, 0);
+    PS.fade(0, PS.ALL, 10);
     PS.color( G.GRID_WIDTH - 1, PS.ALL, COLOR_WALL );
     PS.radius(G.GRID_WIDTH - 1, PS.ALL, 0);
+    PS.fade(G.GRID_WIDTH - 1, PS.ALL, 10);
     PS.color( PS.ALL, 24, COLOR_WALL );
     PS.radius(PS.ALL, 24, 0);
 
@@ -367,21 +412,76 @@ PS.init = function( system, options ) {
     //Reset button
     PS.color(2, 22, G.dcDisabledColor);
     PS.glyph(2, 22, 0x1D411);
+    PS.border(2,22, {top: 1, left:1, bottom:1, right:0, equal: false, width: 1});
+    PS.fade(2, 22, 15);
 
     PS.color(3, 22, G.dcDisabledColor);
     PS.glyph(3, 22, 0x1D404);
+    PS.border(3,22, {top: 1, left:0, bottom:1, right:0, equal: false, width: 1});
+    PS.fade(3, 22, 15);
 
     PS.color(4, 22, G.dcDisabledColor);
     PS.glyph(4, 22, 0x1D412);
+    PS.border(4,22, {top: 1, left:0, bottom:1, right:0, equal: false, width: 1});
+    PS.fade(4, 22, 15);
 
     PS.color(5, 22, G.dcDisabledColor);
     PS.glyph(5, 22, 0x1D404);
+    PS.border(5,22, {top: 1, left:0, bottom:1, right:0, equal: false, width: 1});
+    PS.fade(5, 22, 15);
 
     PS.color(6, 22, G.dcDisabledColor);
     PS.glyph(6, 22, 0x1D413);
+    PS.border(6,22, {top: 1, left:0, bottom:1, right:0, equal: false, width: 1});
+    PS.fade(6, 22, 15);
 
     //Background color of menu area
     PS.color(1, 21, G.dcBackgroundColor);PS.color(1, 22, G.dcBackgroundColor);PS.color(1, 23, G.dcBackgroundColor);PS.color(2, 21, G.dcBackgroundColor);PS.color(2, 23, G.dcBackgroundColor);PS.color(3, 21, G.dcBackgroundColor);PS.color(3, 23, G.dcBackgroundColor);PS.color(4, 21, G.dcBackgroundColor);PS.color(4, 23, G.dcBackgroundColor);PS.color(5, 21, G.dcBackgroundColor);PS.color(5, 23, G.dcBackgroundColor);PS.color(6, 21, G.dcBackgroundColor);PS.color(6, 23, G.dcBackgroundColor);PS.color(7, 21, G.dcBackgroundColor);PS.color(7, 22, G.dcBackgroundColor);PS.color(7, 23, G.dcBackgroundColor);PS.color(8, 21, G.dcBackgroundColor);PS.color(8, 22, G.dcBackgroundColor);PS.color(8, 23, G.dcBackgroundColor);PS.color(8, 21, G.dcBackgroundColor);PS.color(8, 22, G.dcBackgroundColor);PS.color(8, 23, G.dcBackgroundColor);PS.color(12, 21, G.dcBackgroundColor);PS.color(12, 22, G.dcBackgroundColor);PS.color(12, 23, G.dcBackgroundColor);PS.color(13, 21, G.dcBackgroundColor);PS.color(13, 22, G.dcBackgroundColor);PS.color(13, 23, G.dcBackgroundColor);PS.color(14, 21, G.dcBackgroundColor);PS.color(14, 22, G.dcBackgroundColor);PS.color(14, 23, G.dcBackgroundColor);PS.color(15, 21, G.dcBackgroundColor);PS.color(15, 22, G.dcBackgroundColor);PS.color(15, 23, G.dcBackgroundColor);PS.color(16, 21, G.dcBackgroundColor);PS.color(16, 22, G.dcBackgroundColor);PS.color(16, 23, G.dcBackgroundColor);PS.color(17, 21, G.dcBackgroundColor);PS.color(17, 22, G.dcBackgroundColor);PS.color(17, 23, G.dcBackgroundColor);PS.color(18, 21, G.dcBackgroundColor);PS.color(18, 22, G.dcBackgroundColor);PS.color(18, 23, G.dcBackgroundColor);PS.color(19, 21, G.dcBackgroundColor);PS.color(19, 22, G.dcBackgroundColor);PS.color(19, 23, G.dcBackgroundColor);
+
+    //Sound Switch buttons
+    PS.color(7, 22, G.dcDisabledColor);
+    PS.glyph(7, 22, 0x2B6F);
+    PS.border(7,22, {top: 1, left:0, bottom:1, right:1, equal: false, width: 1});
+    PS.fade(7, 22, 15);
+
+    PS.color(14, 22, G.dcDisabledColor);
+    PS.glyph(14, 22, 0x1D412);
+    PS.border(14,22, {top: 1, left:0, bottom:1, right:0, equal: false, width: 1});
+
+    PS.color(15, 22, G.dcDisabledColor);
+    PS.glyph(15, 22, 0x1D40E);
+    PS.border(15,22, {top: 1, left:0, bottom:1, right:0, equal: false, width: 1});
+
+    PS.color(16, 22, G.dcDisabledColor);
+    PS.glyph(16, 22, 0x1D414);
+    PS.border(16,22, {top: 1, left:0, bottom:1, right:0, equal: false, width: 1});
+
+    PS.color(17, 22, G.dcDisabledColor);
+    PS.glyph(17, 22, 0x1D40D);
+    PS.border(17,22, {top: 1, left:0, bottom:1, right:0, equal: false, width: 1});
+
+    PS.color(18, 22, G.dcDisabledColor);
+    PS.glyph(18, 22, 0x1D403);
+    PS.border(18,22, {top: 1, left:0, bottom:1, right:1, equal: false, width: 1});
+
+    PS.color(13, 22, G.dcDisabledColor);
+    PS.glyph(13, 22, 0x0031);
+    PS.border(13, 22, PS.DEFAULT);
+    PS.borderColor(13, 22, PS.COLOR_BLACK);
+
+
+    PS.color(13, 21, G.dcDisabledColor);
+    PS.glyph(13, 21, 0x1F881);
+    PS.border(13, 21, PS.DEFAULT);
+    PS.borderColor(13, 21, PS.COLOR_BLACK);
+    PS.fade(13, 21, 15);
+
+    PS.color(13, 23, G.dcDisabledColor);
+    PS.glyph(13, 23, 0x1F883);
+    PS.border(13, 23, PS.DEFAULT);
+    PS.borderColor(13, 23, PS.COLOR_BLACK);
+    PS.fade(13, 23, 15);
+
 
 
     //Border animation sprite
@@ -422,10 +522,49 @@ PS.init = function( system, options ) {
 
     //Load sounds
     PS.audioLoad("fx_pop");
+
     PS.audioLoad("xylo_a4");
     PS.audioLoad("xylo_c5");
     PS.audioLoad("xylo_e5");
     PS.audioLoad("xylo_g5");
+    G.sounds.push(["xylo_a4", "xylo_c5", "xylo_e5", "xylo_g5"]);
+
+    PS.audioLoad("piano_g5");
+    PS.audioLoad("piano_f6");
+    PS.audioLoad("piano_d6");
+    PS.audioLoad("piano_b5");
+    G.sounds.push(["piano_g5", "piano_f6", "piano_d6", "piano_b5"]);
+
+    PS.audioLoad("piano_a0");
+    PS.audioLoad("piano_c1");
+    PS.audioLoad("piano_e1");
+    PS.audioLoad("piano_g1");
+    G.sounds.push(["piano_a0", "piano_c1", "piano_e1", "piano_g1"]);
+
+    PS.audioLoad("hchord_a2");
+    PS.audioLoad("hchord_c3");
+    PS.audioLoad("hchord_e3");
+    PS.audioLoad("hchord_g3");
+    G.sounds.push(["hchord_a2", "hchord_c3", "hchord_e3", "hchord_g3"]);
+
+    PS.audioLoad("hchord_g6");
+    PS.audioLoad("hchord_b6");
+    PS.audioLoad("hchord_d7");
+    PS.audioLoad("hchord_f7");
+    G.sounds.push(["hchord_g6", "hchord_b6", "hchord_d7", "hchord_f7"]);
+
+    PS.audioLoad("perc_bongo_high");
+    PS.audioLoad("perc_bongo_low");
+    PS.audioLoad("perc_block_low");
+    PS.audioLoad("perc_drum_bass");
+    G.sounds.push(["perc_bongo_high", "perc_bongo_low", "perc_block_low", "perc_drum_bass"]);
+
+    PS.audioLoad("fx_chirp2");
+    PS.audioLoad("fx_coin2");
+    PS.audioLoad("fx_jump7");
+    PS.audioLoad("fx_shoot7");
+    G.sounds.push(["fx_chirp2", "fx_coin2", "fx_jump7", "fx_shoot7"]);
+
 
 };
 
@@ -480,6 +619,16 @@ PS.touch = function( x, y, data, options ) {
         //If in the reset menu
         if(y == 22 && x >= 2 && x <= 6 ) {
             G.reset();
+            return;
+        }
+
+        //If in sound menu
+        if(y == 21 && x == 13 ) {
+            G.changeSounds(1);
+            return;
+        }
+        if(y == 23 && x == 13 ) {
+            G.changeSounds(-1);
             return;
         }
 
