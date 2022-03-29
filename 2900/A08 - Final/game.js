@@ -267,7 +267,21 @@ var G = {
         var newSet = G.activeSoundSet + delta;
 
         //Don't do anything if hitting upper/lower limit
-        if(newSet < 0 || newSet > 6) {
+        if(newSet < 0) {
+            G.activeSoundSet = 6;
+            PS.glyph(13, 22, G.soundSetGlyph+6);
+            G.soundSetGlyph = G.soundSetGlyph+6;
+            PS.color(13, 23, G.dcActiveColor);
+            PS.color(13, 23, G.dcDisabledColor);
+            return;
+        }
+        else if(newSet > 6) {
+            G.activeSoundSet = 0;
+            PS.glyph(13, 22, G.soundSetGlyph-6);
+            G.soundSetGlyph = G.soundSetGlyph-6;
+            PS.color(13, 21, G.dcActiveColor);
+            PS.color(13, 21, G.dcDisabledColor);
+            return;
             return;
         }
 
