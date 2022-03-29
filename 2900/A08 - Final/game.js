@@ -139,7 +139,7 @@ var G = {
                 var combColor = [(color1[0]+color2[0])/2, (color1[1]+color2[1])/2, (color1[2]+color2[2])/2];
 
                 PS.spriteSolidColor(s2, combColor);
-                PS.audioPlay("xylo_a5");
+                PS.audioPlay("fx_drip2");
 
             }
         }
@@ -522,6 +522,7 @@ PS.init = function( system, options ) {
 
     //Load sounds
     PS.audioLoad("fx_pop");
+    PS.audioLoad("fx_drip2");
 
     PS.audioLoad("xylo_a4");
     PS.audioLoad("xylo_c5");
@@ -617,7 +618,7 @@ PS.touch = function( x, y, data, options ) {
         }
 
         //If in the reset menu
-        if(y == 22 && x >= 2 && x <= 6 ) {
+        if(y == 22 && x >= 2 && x <= 7 ) {
             G.reset();
             return;
         }
