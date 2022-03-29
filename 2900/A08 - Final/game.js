@@ -536,11 +536,11 @@ PS.init = function( system, options ) {
     PS.audioLoad("piano_b5");
     G.sounds.push(["piano_g5", "piano_f6", "piano_d6", "piano_b5"]);
 
-    PS.audioLoad("piano_a0");
-    PS.audioLoad("piano_c1");
-    PS.audioLoad("piano_e1");
     PS.audioLoad("piano_g1");
-    G.sounds.push(["piano_a0", "piano_c1", "piano_e1", "piano_g1"]);
+    PS.audioLoad("piano_bb1");
+    PS.audioLoad("piano_d2");
+    PS.audioLoad("piano_f2");
+    G.sounds.push(["piano_g1", "piano_bb1", "piano_d2", "piano_f2"]);
 
     PS.audioLoad("hchord_a2");
     PS.audioLoad("hchord_c3");
