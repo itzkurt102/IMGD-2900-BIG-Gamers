@@ -48,9 +48,9 @@ var G = {
                 ['t','h','e','r','e']],
     levelSolution: {},
     currWordSolution: [],
-    blankGridColor: 0xfaf3de,
-    blankUnwritableGridColor: 0x333333,
-    highlightColor: 0x7cffca,
+    blankGridColor: 0xF2E2C4,
+    blankUnwritableGridColor: 0x012603,
+    highlightColor: 0xA67C2E,
     fullWrongColor: 0x960c0c,
     halfWrongColor: 0xd87737,
     correctColor: 0x3eb559,
@@ -329,6 +329,7 @@ PS.init = function( system, options ) {
 	// Uncomment the following code line and
 	// change the string parameter as needed.
 
+    PS.gridColor(0xFFC8B2);
 	PS.statusText( "Game" );
     G.loadLevel(1);
 
