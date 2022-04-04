@@ -213,6 +213,15 @@ var G = {
 
     //Is run after new player input
     guess : function(text) {
+
+        //Reset the direction of highlighting so the user can click just click to guess again
+        if(G.currDirection === "H") {
+            G.currDirection = "V";
+        }
+        else {
+            G.currDirection = "H";
+        }
+
         var correctLength = G.currWordSolution.length;
         //Check word length
         if(text.length !== correctLength) {
@@ -272,6 +281,8 @@ var G = {
 
             //And the correct glyph
             PS.glyph(x, y, char);
+
+
 
         }
 
