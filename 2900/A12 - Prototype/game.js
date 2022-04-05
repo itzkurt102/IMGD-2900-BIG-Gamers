@@ -56,8 +56,8 @@ var G = {
         ['a',0,'n',0,0,'h',0,'n',0,0,0,0],
         ['c','r','u','i','s','e',0,'d',0,0,0,0],
         ['h',0,'t',0,0,'l',0,0,0,0,0,0],
-        [0,0,0,0,0,'l',0,0,0,0,0,0],
-                ],
+        [0,0,0,0,0,'l',0,0,0,0,0,0]],
+    currentPlayerMap: [],
     levelSolution: {},
     currWordSolution: [],
     blankGridColor: 0x014040,
@@ -86,12 +86,30 @@ var G = {
         return (/[A-Z]/).test(char);
     },
 
+    isGameOver: function() {
+
+
+        //Set up grid:
+        for(var x = 0; x < G.currPuzzleW; x++) {
+            for (var y = 0; y < G.currPuzzleH; y++) {
+                if(G.currentPlayerMap[y][x] !== G.level2Map[y][x]) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    },
+
     //Switches active direction for future balls
     loadLevel: function (levelNum) {
         //Reset everything
         PS.borderColor(PS.ALL, PS.ALL, G.blankUnwritableGridColor);
         PS.radius(PS.ALL, PS.ALL, 5);
         G.levelSolution = {};
+
+        //reset the current player map to empty array filled with 0s
+        G.currentPlayerMap = new Array(9).fill(0).map(() => new Array(12).fill(0));
 
 
         var width = G.level2Map[0].length;
@@ -115,6 +133,7 @@ var G = {
                         G.level2Map[y][x] = G.level2Map[y][x].toLowerCase();
                         PS.glyphColor(x, y, G.correctColor);
                         PS.glyph(x, y, G.level2Map[y][x]);
+                        G.currentPlayerMap[y][x] = G.level2Map[y][x];
                     }
 
                 }
@@ -313,10 +332,15 @@ var G = {
             //And the correct glyph
             PS.glyph(x, y, char);
 
+            G.currentPlayerMap[y][x] = char;
+
 
 
         }
 
+        if(G.isGameOver()) {
+            PS.statusText("Congratulations! You completed the puzzle!");
+        }
 
     },
 
