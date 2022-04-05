@@ -46,14 +46,26 @@ var G = {
                 ['e','r','o','d','e'],
                 ['s','a','n','e','r'],
                 ['t','h','e','r','e']],
+
+    level2Map: [
+        [0,0,0,0,0,0,0,0,0,0,'p',0],
+        [0,0,'c',0,0,0,0,0,'b','o','a','t'],
+        [0,0,'o','c','e','a','n',0,0,0,'l',0],
+        ['b',0,'c',0,0,0,0,'s','w','i','m',0],
+        ['e',0,'o',0,0,'s','e','a',0,0,0,0],
+        ['a',0,'n',0,0,'h',0,'n',0,0,0,0],
+        ['c','r','u','i','s','e',0,'d',0,0,0,0],
+        ['h',0,'t',0,0,'l',0,0,0,0,0,0],
+        [0,0,0,0,0,'l',0,0,0,0,0,0],
+                ],
     levelSolution: {},
     currWordSolution: [],
-    blankGridColor: 0xF2E2C4,
-    blankUnwritableGridColor: 0x012603,
-    highlightColor: 0xA67C2E,
-    fullWrongColor: 0x960c0c,
-    halfWrongColor: 0xd87737,
-    correctColor: 0x3eb559,
+    blankGridColor: 0x014040,
+    blankUnwritableGridColor: 0x011F20,
+    highlightColor: 0x038F85,
+    fullWrongColor: 0xC5243D,
+    halfWrongColor: 0xFFAF1C,
+    correctColor: 0x84FB91,
     currDirection: "H", //H or V for horizontal or vertical
     currPuzzleW: 0,
     currPuzzleH: 0,
@@ -78,18 +90,18 @@ var G = {
         G.levelSolution = {};
 
 
-        var width = G.level1Map[0].length;
+        var width = G.level2Map[0].length;
         G.currPuzzleW = width;
-        var height = G.level1Map.length;
+        var height = G.level2Map.length;
         G.currPuzzleH = height;
 
         //Set up grid:
         for(var x = 0; x < width; x++) {
             for(var y = 0; y < height; y++) {
-                if(G.isCharacterALetter(G.level1Map[y][x])) {
+                if(G.isCharacterALetter(G.level2Map[y][x])) {
                     //If it is a letter, write it to the solution hashtable
                     var key = [x, y].join('|');
-                    G.levelSolution[key] = G.level1Map[y][x];
+                    G.levelSolution[key] = G.level2Map[y][x];
 
                     //and set it to writable spot color
                     PS.color(x, y, G.blankGridColor);
@@ -105,13 +117,13 @@ var G = {
     },
 
     resetHighlights: function() {
-        var width = G.level1Map[0].length;
-        var height = G.level1Map.length;
+        var width = G.level2Map[0].length;
+        var height = G.level2Map.length;
 
         //Reset grid colors:
         for(var x = 0; x < width; x++) {
             for(var y = 0; y < height; y++) {
-                if(G.isCharacterALetter(G.level1Map[y][x])) {
+                if(G.isCharacterALetter(G.level2Map[y][x])) {
                     PS.color(x, y, G.blankGridColor);
                 }
                 else {
@@ -321,7 +333,7 @@ PS.init = function( system, options ) {
 	// Uncomment the following code line and change
 	// the x and y parameters as needed.
 
-	PS.gridSize( 5, 5 );
+	PS.gridSize( 12, 9 );
 
 	// This is also a good place to display
 	// your game title or a welcome message
@@ -329,7 +341,7 @@ PS.init = function( system, options ) {
 	// Uncomment the following code line and
 	// change the string parameter as needed.
 
-    PS.gridColor(0xFFC8B2);
+    PS.gridColor(0xF2EFC2);
 	PS.statusText( "Game" );
     G.loadLevel(1);
 
