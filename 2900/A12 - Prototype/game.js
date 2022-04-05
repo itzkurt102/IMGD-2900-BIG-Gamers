@@ -49,7 +49,7 @@ var G = {
 
     level2Map: [
         [0,0,0,0,0,0,0,0,0,0,'p',0],
-        [0,0,'c',0,0,0,0,0,'b','o','a','t'],
+        [0,0,'c',0,0,0,0,0,'B','O','A','T'],
         [0,0,'o','c','e','a','n',0,0,0,'l',0],
         ['b',0,'c',0,0,0,0,'s','w','i','m',0],
         ['e',0,'o',0,0,'s','e','a',0,0,0,0],
@@ -79,7 +79,11 @@ var G = {
     },
 
     isCharacterALetter: function(char) {
-        return (/[a-zA-Z]/).test(char)
+        return (/[a-zA-Z]/).test(char);
+    },
+
+    isCharacterUpper: function(char) {
+        return (/[A-Z]/).test(char);
     },
 
     //Switches active direction for future balls
@@ -101,10 +105,17 @@ var G = {
                 if(G.isCharacterALetter(G.level2Map[y][x])) {
                     //If it is a letter, write it to the solution hashtable
                     var key = [x, y].join('|');
-                    G.levelSolution[key] = G.level2Map[y][x];
+                    G.levelSolution[key] = G.level2Map[y][x].toLowerCase();
 
                     //and set it to writable spot color
                     PS.color(x, y, G.blankGridColor);
+
+                    //If it is capitalized, we are providing a hint, so we draw the complete word
+                    if(G.isCharacterUpper(G.level2Map[y][x])) {
+                        G.level2Map[y][x] = G.level2Map[y][x].toLowerCase();
+                        PS.glyphColor(x, y, G.correctColor);
+                        PS.glyph(x, y, G.level2Map[y][x]);
+                    }
 
                 }
                 else {
@@ -213,18 +224,26 @@ var G = {
 
         }
 
-        //Save the location of the first word
-        G.currWordStartCoord = [coordsToHighlight[0][0], coordsToHighlight[0][1]];
+        //Save the location of the first word, only if we are clicking on a valid word
+        if(coordsToHighlight.length > 0) {
+            G.currWordStartCoord = [coordsToHighlight[0][0], coordsToHighlight[0][1]];
+        }
 
         //Highlight full word spot
         for(var i=0; i < coordsToHighlight.length; i++) {
             PS.color(coordsToHighlight[i][0], coordsToHighlight[i][1], G.highlightColor);
         }
 
+        //Retry if it is one length- this means we tried to go in a direction for a word that is in the opposite direction
+        if(coordsToHighlight.length == 1) {
+            G.highlightGuessLoc(x,y);
+        }
+
     },
 
     //Is run after new player input
     guess : function(text) {
+        text = text.toLowerCase();
 
         //Reset the direction of highlighting so the user can click just click to guess again
         if(G.currDirection === "H") {
@@ -342,8 +361,12 @@ PS.init = function( system, options ) {
 	// change the string parameter as needed.
 
     PS.gridColor(0xF2EFC2);
-	PS.statusText( "Game" );
+    PS.statusText("Green = ✓, Red = ✖, Yellow = Wrong Spot.");
     G.loadLevel(1);
+
+    //Add hint
+    PS.glyph(11, 8, "⁇");
+    PS.glyphColor(11, 8, G.correctColor);
 
 	// Add any other initialization code you need here.
 };
@@ -369,6 +392,11 @@ PS.touch = function( x, y, data, options ) {
         PS.statusInput("Guess Word ("+G.currWordSolution.length+"):", function(text) {
             G.guess(text);
         });
+    }
+
+    //clicked on hint
+    if(x == 11 && y == 8) {
+        PS.statusText("Hint: Theme is 'seaside'");
     }
 
 };
