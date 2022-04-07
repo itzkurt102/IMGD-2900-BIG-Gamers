@@ -41,13 +41,13 @@ If you don't use JSHint (or are using it with a configuration file), you can saf
 var G = {
 
     //Game variables and constants
-    level1Map: [['g','o','n','e',0],
+    level2Map: [['g','o','n','e',0],
                 ['u','p','o','n',0],
                 ['e','r','o','d','e'],
                 ['s','a','n','e','r'],
                 ['t','h','e','r','e']],
 
-    level2Map: [
+    level1Map: [
         [0,0,0,0,0,0,0,0,0,0,'p',0],
         [0,0,'c',0,0,0,0,0,'B','O','A','T'],
         [0,0,'o','c','e','a','n',0,0,0,'l',0],
@@ -57,6 +57,7 @@ var G = {
         ['c','r','u','i','s','e',0,'d',0,0,0,0],
         ['h',0,'t',0,0,'l',0,0,0,0,0,0],
         [0,0,0,0,0,'l',0,0,0,0,0,0]],
+    levelSizes: [[12,9],[5,5]],
     currentPlayerMap: [],
     levelSolution: {},
     currWordSolution: [],
@@ -71,10 +72,74 @@ var G = {
     currPuzzleH: 0,
     currWordStartCoord: [0,0],
     currWordDir: "H",
+    inMenu: true,
+    menuBorderColor: PS.COLOR_CYAN,
+    menuBeadBGColor: PS.COLOR_BLACK,
+    menulvl1BGColor: PS.COLOR_YELLOW,
+    menulvl2BGColor: PS.COLOR_RED,
+    menulvl3BGColor: PS.COLOR_ORANGE,
+    menulvl4BGColor: PS.COLOR_BLUE,
+    menulvlHoverColor: PS.COLOR_WHITE,
+    menubackgroundColor: PS.COLOR_BLACK,
+    activeLevelMap: [],
+
 
 
     //Loads the main menu
     loadMenu: function() {
+
+        G.inMenu = true;
+
+        PS.gridSize(9, 9);
+        PS.gridColor(G.menubackgroundColor);
+        PS.color(PS.ALL, PS.ALL, G.menuBeadBGColor);
+        PS.border(PS.ALL, PS.ALL, 0);
+        PS.color(0, PS.ALL, G.menuBorderColor);
+        PS.color(8, PS.ALL, G.menuBorderColor);
+        PS.color(PS.ALL, 0, G.menuBorderColor);
+        PS.color(PS.ALL, 8, G.menuBorderColor);
+
+        PS.statusText("Click on a level to start!");
+        PS.statusColor(PS.COLOR_WHITE);
+
+        PS.fade(PS.ALL, PS.ALL, 20);
+
+        PS.color(2, 2, G.menulvl1BGColor);
+        PS.glyph(2, 2, 0x1F600);
+        PS.color(3, 2, G.menulvl1BGColor);
+        PS.glyph(3, 2, 0x1F600);
+        PS.color(2, 3, G.menulvl1BGColor);
+        PS.glyph(2, 3, 0x004C);
+        PS.color(3, 3, G.menulvl1BGColor);
+        PS.glyph(3, 3, 0x0031);
+
+        PS.color(5, 2, G.menulvl2BGColor);
+        PS.glyph(5, 2, 0x1F600);
+        PS.color(6, 2, G.menulvl2BGColor);
+        PS.glyph(6, 2, 0x1F600);
+        PS.color(5, 3, G.menulvl2BGColor);
+        PS.glyph(5, 3, 0x004C);
+        PS.color(6, 3, G.menulvl2BGColor);
+        PS.glyph(6, 3, 0x0032);
+
+        PS.color(2, 5, G.menulvl3BGColor);
+        PS.glyph(2, 5, 0x1F600);
+        PS.color(3, 5, G.menulvl3BGColor);
+        PS.glyph(3, 5, 0x1F600);
+        PS.color(2, 6, G.menulvl3BGColor);
+        PS.glyph(2, 6, 0x004C);
+        PS.color(3, 6, G.menulvl3BGColor);
+        PS.glyph(3, 6, 0x0033);
+
+        PS.color(5, 5, G.menulvl4BGColor);
+        PS.glyph(5, 5, 0x1F600);
+        PS.color(6, 5, G.menulvl4BGColor);
+        PS.glyph(6, 5, 0x1F600);
+        PS.color(5, 6, G.menulvl4BGColor);
+        PS.glyph(5, 6, 0x004C);
+        PS.color(6, 6, G.menulvl4BGColor);
+        PS.glyph(6, 6, 0x0034);
+
 
     },
 
@@ -102,7 +167,19 @@ var G = {
     },
 
     //Switches active direction for future balls
-    loadLevel: function (levelNum) {
+    loadLevel: function (levelNum, levelMap) {
+
+        //fix for 0 indexing
+        var lvl = levelNum - 1;
+
+        //make sure we let everything know we are in a level now
+        G.inMenu = false;
+
+        //Set grid size
+        PS.gridSize(G.levelSizes[lvl][0], G.levelSizes[lvl][1]);
+
+        G.activeLevelMap = levelMap;
+
         //Reset everything
         PS.borderColor(PS.ALL, PS.ALL, G.blankUnwritableGridColor);
         PS.radius(PS.ALL, PS.ALL, 5);
@@ -111,29 +188,42 @@ var G = {
         //reset the current player map to empty array filled with 0s
         G.currentPlayerMap = new Array(9).fill(0).map(() => new Array(12).fill(0));
 
+        //init
+        PS.gridColor(0x4C5958);
+        PS.statusText("Green = ✓, Red = ✖, Yellow = Wrong Spot.");
 
-        var width = G.level2Map[0].length;
+
+
+        //Play custom audio
+        PS.audioPlay( "sadTune", {fileTypes: ["mp3"], path: "audio/", loop : true, volume : 0.1} );
+
+
+        var width = levelMap[0].length;
         G.currPuzzleW = width;
-        var height = G.level2Map.length;
+        var height = levelMap.length;
         G.currPuzzleH = height;
+
+        //Add hint
+        PS.glyph(width-1, height-1, "⁇");
+        PS.glyphColor(width-1, height-1, G.correctColor);
 
         //Set up grid:
         for(var x = 0; x < width; x++) {
             for(var y = 0; y < height; y++) {
-                if(G.isCharacterALetter(G.level2Map[y][x])) {
+                if(G.isCharacterALetter(levelMap[y][x])) {
                     //If it is a letter, write it to the solution hashtable
                     var key = [x, y].join('|');
-                    G.levelSolution[key] = G.level2Map[y][x].toLowerCase();
+                    G.levelSolution[key] = levelMap[y][x].toLowerCase();
 
                     //and set it to writable spot color
                     PS.color(x, y, G.blankGridColor);
 
                     //If it is capitalized, we are providing a hint, so we draw the complete word
-                    if(G.isCharacterUpper(G.level2Map[y][x])) {
-                        G.level2Map[y][x] = G.level2Map[y][x].toLowerCase();
+                    if(G.isCharacterUpper(levelMap[y][x])) {
+                        levelMap[y][x] = levelMap[y][x].toLowerCase();
                         PS.glyphColor(x, y, G.correctColor);
-                        PS.glyph(x, y, G.level2Map[y][x]);
-                        G.currentPlayerMap[y][x] = G.level2Map[y][x];
+                        PS.glyph(x, y, levelMap[y][x]);
+                        G.currentPlayerMap[y][x] = levelMap[y][x];
                     }
 
                 }
@@ -147,13 +237,13 @@ var G = {
     },
 
     resetHighlights: function() {
-        var width = G.level2Map[0].length;
-        var height = G.level2Map.length;
+        var width = G.activeLevelMap[0].length;
+        var height = G.activeLevelMap.length;
 
         //Reset grid colors:
         for(var x = 0; x < width; x++) {
             for(var y = 0; y < height; y++) {
-                if(G.isCharacterALetter(G.level2Map[y][x])) {
+                if(G.isCharacterALetter(G.activeLevelMap[y][x])) {
                     PS.color(x, y, G.blankGridColor);
                 }
                 else {
@@ -376,27 +466,20 @@ PS.init = function( system, options ) {
 	// Uncomment the following code line and change
 	// the x and y parameters as needed.
 
-	PS.gridSize( 12, 9 );
-
 	// This is also a good place to display
 	// your game title or a welcome message
 	// in the status line above the grid.
 	// Uncomment the following code line and
 	// change the string parameter as needed.
 
-    PS.gridColor(0x4C5958);
-    PS.statusText("Green = ✓, Red = ✖, Yellow = Wrong Spot.");
-    G.loadLevel(1);
 
-    //Add hint
-    PS.glyph(11, 8, "⁇");
-    PS.glyphColor(11, 8, G.correctColor);
 
     //Load audio if needed
     PS.audioLoad( "sadTune", {fileTypes: ["mp3"], path: "audio/", loop : true, volume : 0.1} );
 
-    //Play custom audio
-    PS.audioPlay( "sadTune", {fileTypes: ["mp3"], path: "audio/", loop : true, volume : 0.1} );
+
+
+    G.loadMenu();
 
 	// Add any other initialization code you need here.
 };
@@ -412,22 +495,45 @@ This function doesn't have to do anything. Any value returned is ignored.
 */
 
 PS.touch = function( x, y, data, options ) {
-    G.highlightGuessLoc(x, y);
 
-    if(G.levelSolution[[x, y].join('|')] == null) {
-        PS.statusText("Not a valid guess location, click elsewhere!");
+    //If we are not in the menu anymore
+    if(!G.inMenu) {
+        G.highlightGuessLoc(x, y);
+
+        if(G.levelSolution[[x, y].join('|')] == null) {
+            PS.statusText("Not a valid guess location, click elsewhere!");
+        }
+        else {
+            PS.statusText("Click on a word spot to guess!");
+            PS.statusInput("Guess Word ("+G.currWordSolution.length+"):", function(text) {
+                G.guess(text);
+            });
+        }
+
+        //clicked on hint
+
+        if(x == 11 && y == 8) {
+            PS.statusText("You hear sounds of waves...");
+        }
     }
+
+    //If we are in the menu
     else {
-        PS.statusText("Click on a word spot to guess!");
-        PS.statusInput("Guess Word ("+G.currWordSolution.length+"):", function(text) {
-            G.guess(text);
-        });
-    }
+        //TODO make this correspond to level
+        if(x >= 2 && x <= 3 && y >= 2 && y <= 3) {
+            G.loadLevel(1, G.level1Map);
+        }
+        else if(x >= 5 && x <= 6 && y >= 2 && y <= 3) {
+            G.loadLevel(2, G.level2Map);
+        }
+        else if(x >= 2 && x <= 3 && y >= 5 && y <= 6) {
+            G.loadLevel(3, G.level1Map);
+        }
+        else if(x >= 5 && x <= 6 && y >= 5 && y <= 6) {
+            G.loadLevel(4, G.level1Map);
+        }
 
-    //clicked on hint
 
-    if(x == 11 && y == 8) {
-        PS.statusText("You hear sounds of waves...");
     }
 
 };
@@ -445,7 +551,7 @@ This function doesn't have to do anything. Any value returned is ignored.
 PS.release = function( x, y, data, options ) {
 	// Uncomment the following code line to inspect x/y parameters:
 
-	// PS.debug( "PS.release() @ " + x + ", " + y + "\n" );
+
 
 	// Add code here for when the mouse button/touch is released over a bead.
 };
@@ -462,8 +568,33 @@ This function doesn't have to do anything. Any value returned is ignored.
 
 PS.enter = function( x, y, data, options ) {
 	// Uncomment the following code line to inspect x/y parameters:
+    if(G.inMenu) {
+        if(x >= 2 && x <= 3 && y >= 2 && y <= 3) {
+            PS.color(2, 2, G.menulvlHoverColor);
+            PS.color(3, 2, G.menulvlHoverColor);
+            PS.color(2, 3, G.menulvlHoverColor);
+            PS.color(3, 3, G.menulvlHoverColor);
+        }
+        else if(x >= 5 && x <= 6 && y >= 2 && y <= 3) {
+            PS.color(5, 2, G.menulvlHoverColor);
+            PS.color(6, 2, G.menulvlHoverColor);
+            PS.color(5, 3, G.menulvlHoverColor);
+            PS.color(6, 3, G.menulvlHoverColor);
+        }
+        else if(x >= 2 && x <= 3 && y >= 5 && y <= 6) {
+            PS.color(2, 5, G.menulvlHoverColor);
+            PS.color(3, 5, G.menulvlHoverColor);
+            PS.color(2, 6, G.menulvlHoverColor);
+            PS.color(3, 6, G.menulvlHoverColor);
+        }
+        else if(x >= 5 && x <= 6 && y >= 5 && y <= 6) {
+            PS.color(5, 5, G.menulvlHoverColor);
+            PS.color(6, 5, G.menulvlHoverColor);
+            PS.color(5, 6, G.menulvlHoverColor);
+            PS.color(6, 6, G.menulvlHoverColor);
+        }
+    }
 
-	// PS.debug( "PS.enter() @ " + x + ", " + y + "\n" );
 
 	// Add code here for when the mouse cursor/touch enters a bead.
 };
@@ -481,7 +612,32 @@ This function doesn't have to do anything. Any value returned is ignored.
 PS.exit = function( x, y, data, options ) {
 	// Uncomment the following code line to inspect x/y parameters:
 
-	// PS.debug( "PS.exit() @ " + x + ", " + y + "\n" );
+    if(G.inMenu) {
+        if(x >= 2 && x <= 3 && y >= 2 && y <= 3) {
+            PS.color(2, 2, G.menulvl1BGColor);
+            PS.color(3, 2, G.menulvl1BGColor);
+            PS.color(2, 3, G.menulvl1BGColor);
+            PS.color(3, 3, G.menulvl1BGColor);
+        }
+        else if(x >= 5 && x <= 6 && y >= 2 && y <= 3) {
+            PS.color(5, 2, G.menulvl2BGColor);
+            PS.color(6, 2, G.menulvl2BGColor);
+            PS.color(5, 3, G.menulvl2BGColor);
+            PS.color(6, 3, G.menulvl2BGColor);
+        }
+        else if(x >= 2 && x <= 3 && y >= 5 && y <= 6) {
+            PS.color(2, 5, G.menulvl3BGColor);
+            PS.color(3, 5, G.menulvl3BGColor);
+            PS.color(2, 6, G.menulvl3BGColor);
+            PS.color(3, 6, G.menulvl3BGColor);
+        }
+        else if(x >= 5 && x <= 6 && y >= 5 && y <= 6) {
+            PS.color(5, 5, G.menulvl4BGColor);
+            PS.color(6, 5, G.menulvl4BGColor);
+            PS.color(5, 6, G.menulvl4BGColor);
+            PS.color(6, 6, G.menulvl4BGColor);
+        }
+    }
 
 	// Add code here for when the mouse cursor/touch exits a bead.
 };
