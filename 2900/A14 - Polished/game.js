@@ -41,13 +41,14 @@ If you don't use JSHint (or are using it with a configuration file), you can saf
 var G = {
 
     //Game variables and constants
-    level2Map: [['g','o','n','e',0],
-                ['u','p','o','n',0],
-                ['e','r','o','d','e'],
-                ['s','a','n','e','r'],
-                ['t','h','e','r','e']],
-
     level1Map: [
+        [0,0,0,0,'f',0,0,0,0,0,0,0,0],
+        [0,0,0,0,'l',0,0,0,0,0,0,0,0],
+        [0,0,0,0,'o',0,0,0,0,0,0,0,0],
+        [0,'g','e','o','r','g','i','a',0,0,'u',0,0],
+        ['s','a','n','e','r'],
+        ['t','h','e','r','e']],
+    level2Map: [
         [0,0,0,0,0,0,0,0,0,0,'p',0],
         [0,0,'c',0,0,0,0,0,'B','O','A','T'],
         [0,0,'o','c','e','a','n',0,0,0,'l',0],
@@ -57,7 +58,7 @@ var G = {
         ['c','r','u','i','s','e',0,'d',0,0,0,0],
         ['h',0,'t',0,0,'l',0,0,0,0,0,0],
         [0,0,0,0,0,'l',0,0,0,0,0,0]],
-    levelSizes: [[12,9],[5,5]],
+    levelSizes: [[5,5],[12,9]],
     currentPlayerMap: [],
     levelSolution: {},
     currWordSolution: [],
@@ -195,7 +196,7 @@ var G = {
 
 
         //Play custom audio
-        PS.audioPlay( "sadTune", {fileTypes: ["mp3"], path: "audio/", loop : true, volume : 0.1} );
+        PS.audioPlay( "bgMusic", {fileTypes: ["mp3"], path: "audio/", loop : true, volume : 0.1} );
 
 
         var width = levelMap[0].length;
@@ -475,7 +476,7 @@ PS.init = function( system, options ) {
 
 
     //Load audio if needed
-    PS.audioLoad( "sadTune", {fileTypes: ["mp3"], path: "audio/", loop : true, volume : 0.1} );
+    PS.audioLoad( "bgMusic", {fileTypes: ["mp3"], path: "audio/", loop : true, volume : 0.1} );
 
 
 
@@ -512,7 +513,8 @@ PS.touch = function( x, y, data, options ) {
 
         //clicked on hint
 
-        if(x == 11 && y == 8) {
+        if(x === G.currPuzzleW-1 && y === G.currPuzzleH-1) {
+
             PS.statusText("You hear sounds of waves...");
         }
     }
