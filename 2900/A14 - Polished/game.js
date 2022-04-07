@@ -93,6 +93,9 @@ var G = {
     menulvlHoverColor: 0xF1F8FB,
     menubackgroundColor: 0x363940,
     activeLevelMap: [],
+    buttonHoverColor: PS.COLOR_WHITE,
+    buttonNormalColor: PS.COLOR_RED,
+    defaultText: "Click on a word spot to guess!",
 
 
 
@@ -187,7 +190,8 @@ var G = {
         G.inMenu = false;
 
         //Set grid size
-        PS.gridSize(G.levelSizes[lvl][0], G.levelSizes[lvl][1]);
+        PS.gridSize(G.levelSizes[lvl][0], G.levelSizes[lvl][1]+1);
+        PS.color(PS.ALL, G.levelSizes[lvl][1], G.blankUnwritableGridColor);
 
         G.activeLevelMap = levelMap;
 
@@ -214,9 +218,17 @@ var G = {
         var height = levelMap.length;
         G.currPuzzleH = height;
 
-        //Add hint
-        PS.glyph(width-1, height-1, "⁇");
-        PS.glyphColor(width-1, height-1, G.correctColor);
+        //Add hint button
+        PS.glyph(width-1, height, "⁇");
+        PS.glyphColor(width-1, height, G.correctColor);
+        PS.color(width-1, height, G.buttonNormalColor);
+        PS.fade(width-1, height, 20);
+
+        //Add back button
+        PS.glyph(0, height, 0x21A9);
+        PS.glyphColor(0, height, G.correctColor);
+        PS.color(0, height, G.buttonNormalColor);
+        PS.fade(0, height, 20);
 
         //Set up grid:
         for(var x = 0; x < width; x++) {
@@ -523,9 +535,14 @@ PS.touch = function( x, y, data, options ) {
 
         //clicked on hint
 
-        if(x === G.currPuzzleW-1 && y === G.currPuzzleH-1) {
+        if(x === G.currPuzzleW-1 && y === G.currPuzzleH) {
+            //TODO HERE
+            //clicked hint
+        }
 
-            PS.statusText("You hear sounds of waves...");
+        if(x === 0 && y === G.currPuzzleH) {
+            //TODO HERE
+            //clicked back button
         }
     }
 
@@ -606,6 +623,19 @@ PS.enter = function( x, y, data, options ) {
             PS.color(6, 6, G.menulvlHoverColor);
         }
     }
+    else {
+        if(x === G.currPuzzleW-1 && y === G.currPuzzleH) {
+            //TODO HERE
+            PS.color(G.currPuzzleW-1, G.currPuzzleH, G.buttonHoverColor);
+            PS.statusText("Click for a hint!");
+        }
+
+        if(x === 0 && y === G.currPuzzleH) {
+            //TODO HERE
+            PS.color(0, G.currPuzzleH, G.buttonHoverColor);
+            PS.statusText("Click to go back to the main menu.");
+        }
+    }
 
 
 	// Add code here for when the mouse cursor/touch enters a bead.
@@ -648,6 +678,19 @@ PS.exit = function( x, y, data, options ) {
             PS.color(6, 5, G.menulvl4BGColor);
             PS.color(5, 6, G.menulvl4BGColor);
             PS.color(6, 6, G.menulvl4BGColor);
+        }
+    }
+    else {
+        if(x === G.currPuzzleW-1 && y === G.currPuzzleH) {
+            //TODO HERE
+            PS.color(G.currPuzzleW-1, G.currPuzzleH, G.buttonNormalColor);
+            PS.statusText(G.defaultText);
+        }
+
+        if(x === 0 && y === G.currPuzzleH) {
+            //TODO HERE
+            PS.color(0, G.currPuzzleH, G.buttonNormalColor);
+            PS.statusText(G.defaultText);
         }
     }
 
