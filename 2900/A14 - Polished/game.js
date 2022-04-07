@@ -108,6 +108,7 @@ var G = {
     activeLevelMap: [],
     buttonHoverColor: 0xF1F8FB,
     buttonNormalColor: 0x8AA6A3,
+    buttonGlyphColor: PS.COLOR_GREEN,
     defaultText: "Click on a word spot to guess!",
 
 
