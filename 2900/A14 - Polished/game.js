@@ -93,7 +93,7 @@ var G = {
     menulvlHoverColor: 0xF1F8FB,
     menubackgroundColor: 0x363940,
     activeLevelMap: [],
-    buttonHoverColor: PS.COLOR_WHITE,
+    buttonHoverColor: 0xF1F8FB,
     buttonNormalColor: PS.COLOR_RED,
     defaultText: "Click on a word spot to guess!",
 
