@@ -384,7 +384,7 @@ PS.init = function( system, options ) {
 	// Uncomment the following code line and
 	// change the string parameter as needed.
 
-    PS.gridColor(0xF2EFC2);
+    PS.gridColor(0x4C5958);
     PS.statusText("Green = ✓, Red = ✖, Yellow = Wrong Spot.");
     G.loadLevel(1);
 
@@ -392,7 +392,11 @@ PS.init = function( system, options ) {
     PS.glyph(11, 8, "⁇");
     PS.glyphColor(11, 8, G.correctColor);
 
-    PS.audioPlay("sadTune", { fileTypes: ["mp3"], path: "audio/" });
+    //Load audio if needed
+    PS.audioLoad( "sadTune", {fileTypes: ["mp3"], path: "audio/", loop : true, volume : 0.1} );
+
+    //Play custom audio
+    PS.audioPlay( "sadTune", {fileTypes: ["mp3"], path: "audio/", loop : true, volume : 0.1} );
 
 	// Add any other initialization code you need here.
 };
@@ -421,8 +425,9 @@ PS.touch = function( x, y, data, options ) {
     }
 
     //clicked on hint
+
     if(x == 11 && y == 8) {
-        PS.statusText("Hint: Theme is 'seaside'");
+        PS.statusText("You hear sounds of waves...");
     }
 
 };
