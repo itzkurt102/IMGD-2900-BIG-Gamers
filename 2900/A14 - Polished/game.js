@@ -52,8 +52,7 @@ var G = {
         [0,0,'k',0,'n',0,'s',0,0,0,0,'y',0],
         [0,0,'y',0,'e',0,'k',0,0,0,0,'o',0],
         [0,0,0,0,0,0,'a',0,0,0,0,'r',0],
-        [0,0,0,0,0,0,0,0,0,0,0,'k',0],
-    ],
+        [0,0,0,0,0,0,0,0,0,0,0,'k',0],],
     level2Map: [
         [0,0,0,0,0,0,0,0,0,0,'p',0],
         [0,0,'c',0,0,0,0,0,'B','O','A','T'],
@@ -64,7 +63,21 @@ var G = {
         ['c','r','u','i','s','e',0,'d',0,0,0,0],
         ['h',0,'t',0,0,'l',0,0,0,0,0,0],
         [0,0,0,0,0,'l',0,0,0,0,0,0]],
-    levelSizes: [[13,15],[12,9]],
+    level3Map: [
+        [0,'f',0,0,0,0,0,0,0,0,0],
+        ['k','a','v','e','n',0,0,0,0,0,0],
+        [0,'r',0,0,0,0,0,0,0,0,0],
+        [0,'a',0,0,'i',0,0,'m',0,0,0],
+        [0,'d',0,0,'n',0,0,'o',0,0,0],
+        ['s','a','l','i','s','b','u','r','y',0,0],
+        [0,'y',0,0,'t',0,0,'g',0,0,0],
+        [0,0,0,0,'i',0,0,'a',0,0,0],
+        [0,'e','a','s','t',0,'u','n','i','t','y'],
+        [0,0,0,0,'u',0,0,0,0,0,0],
+        [0,0,0,0,'t',0,0,0,0,0,0],
+        ['f','u','l','l','e','r',0,0,0,0,0],
+    ],
+    levelSizes: [[13,15],[12,9], [11,12]],
     currentPlayerMap: [],
     levelSolution: {},
     currWordSolution: [],
@@ -91,7 +104,7 @@ var G = {
     activeLevelMap: [],
     buttonHoverColor: 0xF1F8FB,
     buttonNormalColor: 0x8AA6A3,
-    buttonGlyphColor: PS.COLOR_GREEN,
+    buttonGlyphColor: 0xD94A3D,
     defaultText: "Click on a word spot to guess!",
 
 
@@ -552,10 +565,10 @@ PS.touch = function( x, y, data, options ) {
             G.loadLevel(2, G.level2Map);
         }
         else if(x >= 2 && x <= 3 && y >= 5 && y <= 6) {
-            G.loadLevel(3, G.level1Map);
+            G.loadLevel(3, G.level3Map);
         }
         else if(x >= 5 && x <= 6 && y >= 5 && y <= 6) {
-            G.loadLevel(4, G.level1Map);
+            G.loadLevel(4, G.level3Map);
         }
 
 
