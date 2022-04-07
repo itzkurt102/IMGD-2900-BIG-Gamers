@@ -392,6 +392,8 @@ PS.init = function( system, options ) {
     PS.glyph(11, 8, "⁇");
     PS.glyphColor(11, 8, G.correctColor);
 
+    PS.audioPlay("sadTune", { fileTypes: ["mp3"], path: "audio/" });
+
 	// Add any other initialization code you need here.
 };
 
