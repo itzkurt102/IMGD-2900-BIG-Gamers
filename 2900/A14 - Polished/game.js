@@ -1,22 +1,18 @@
 /*
 game.js for Perlenspiel 3.3.x
 Last revision: 2022-03-15 (BM)
-
 Perlenspiel is a scheme by Professor Moriarty (bmoriarty@wpi.edu).
 This version of Perlenspiel (3.3.x) is hosted at <https://ps3.perlenspiel.net>
 Perlenspiel is Copyright © 2009-22 Brian Moriarty.
 This file is part of the standard Perlenspiel 3.3.x devkit distribution.
-
 Perlenspiel is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published
 by the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
-
 Perlenspiel is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU Lesser General Public License for more details.
-
 You may have received a copy of the GNU Lesser General Public License
 along with the Perlenspiel devkit. If not, see <http://www.gnu.org/licenses/>.
 */
@@ -56,7 +52,8 @@ var G = {
         [0,0,'k',0,'n',0,'s',0,0,0,0,'y',0],
         [0,0,'y',0,'e',0,'k',0,0,0,0,'o',0],
         [0,0,0,0,0,0,'a',0,0,0,0,'r',0],
-        [0,0,0,0,0,0,0,0,0,0,0,'k',0],],
+        [0,0,0,0,0,0,0,0,0,0,0,'k',0],
+    ],
     level2Map: [
         [0,0,0,0,0,0,0,0,0,0,'p',0],
         [0,0,'c',0,0,0,0,0,'B','O','A','T'],
@@ -67,20 +64,6 @@ var G = {
         ['c','r','u','i','s','e',0,'d',0,0,0,0],
         ['h',0,'t',0,0,'l',0,0,0,0,0,0],
         [0,0,0,0,0,'l',0,0,0,0,0,0]],
-    level3Map: [
-        [0,'f',0,0,0,0,0,0,0,0,0],
-        ['k','a','v','e','n',0,0,0,0,0,0],
-        [0,'r',0,0,0,0,0,0,0,0,0],
-        [0,'a',0,0,'i',0,0,'m',0,0,0],
-        [0,'d',0,0,'n',0,0,'o',0,0,0],
-        ['s','a','l','i','s','b','u','r','y',0,0],
-        [0,'y',0,0,'t',0,0,'g',0,0,0],
-        [0,0,0,0,'i',0,0,'a',0,0,0],
-        [0,'e','a','s','t',0,'u','n','i','t','y'],
-        [0,0,0,0,'u',0,0,0,0,0,0],
-        [0,0,0,0,'t',0,0,0,0,0,0],
-        ['f','u','l','l','e','r',0,0,0,0,0],
-        ],
     levelSizes: [[13,15],[12,9]],
     currentPlayerMap: [],
     levelSolution: {},
@@ -108,6 +91,7 @@ var G = {
     activeLevelMap: [],
     buttonHoverColor: 0xF1F8FB,
     buttonNormalColor: 0x8AA6A3,
+    buttonGlyphColor: PS.COLOR_GREEN,
     defaultText: "Click on a word spot to guess!",
 
 
@@ -184,7 +168,7 @@ var G = {
         //Set up grid:
         for(var x = 0; x < G.currPuzzleW; x++) {
             for (var y = 0; y < G.currPuzzleH; y++) {
-                if(G.currentPlayerMap[y][x] !== G.level2Map[y][x]) {
+                if(G.currentPlayerMap[y][x] !== G.activeLevelMap[y][x]) {
                     return false;
                 }
             }
@@ -214,16 +198,12 @@ var G = {
         G.levelSolution = {};
 
         //reset the current player map to empty array filled with 0s
-        G.currentPlayerMap = new Array(9).fill(0).map(() => new Array(12).fill(0));
+        G.currentPlayerMap = new Array(G.levelSizes[lvl][0]).fill(0).map(() => new Array(G.levelSizes[lvl][1]).fill(0));
 
         //init
         PS.gridColor(0x4C5958);
         PS.statusText("Green = ✓, Red = ✖, Yellow = Wrong Spot.");
 
-
-
-        //Play custom audio
-        PS.audioPlay( "bgMusic", {fileTypes: ["mp3"], path: "audio/", loop : true, volume : 0.1} );
 
 
         var width = levelMap[0].length;
@@ -233,13 +213,13 @@ var G = {
 
         //Add hint button
         PS.glyph(width-1, height, "⁇");
-        PS.glyphColor(width-1, height, G.correctColor);
+        PS.glyphColor(width-1, height, G.buttonGlyphColor);
         PS.color(width-1, height, G.buttonNormalColor);
         PS.fade(width-1, height, 20);
 
         //Add back button
         PS.glyph(0, height, 0x21A9);
-        PS.glyphColor(0, height, G.correctColor);
+        PS.glyphColor(0, height, G.buttonGlyphColor);
         PS.color(0, height, G.buttonNormalColor);
         PS.fade(0, height, 20);
 
@@ -333,6 +313,8 @@ var G = {
                     coordsToHighlight.push([r,y]);
                 }
 
+                PS.audioPlay( "hori_switch", {fileTypes: ["wav"], path: "audio/", volume : 0.2} );
+
                 //Swap direction after we are done
                 G.currDirection = "V";
             }
@@ -363,6 +345,7 @@ var G = {
                     coordsToHighlight.push([x,u]);
                 }
 
+                PS.audioPlay( "vert_switch", {fileTypes: ["wav"], path: "audio/", volume : 0.2} );
                 //Swap direction
                 G.currDirection = "H";
             }
@@ -389,6 +372,7 @@ var G = {
     //Is run after new player input
     guess : function(text) {
         text = text.toLowerCase();
+        var letterCorrect = 0;
 
         //Reset the direction of highlighting so the user can click just click to guess again
         if(G.currDirection === "H") {
@@ -402,12 +386,14 @@ var G = {
         //Check word length
         if(text.length !== correctLength) {
             PS.statusText("Incorrect length: should be " + correctLength + " letters long.");
+            PS.audioPlay( "errorGuess", {fileTypes: ["wav"], path: "audio/", volume : 0.2} );
             return;
         }
 
         //TODO Check if valid word
         if(false) {
             PS.statusText("Not a valid word: try again!");
+            PS.audioPlay( "errorGuess", {fileTypes: ["wav"], path: "audio/", volume : 0.2} );
             return;
         }
 
@@ -452,6 +438,7 @@ var G = {
                     break;
                 case 1:
                     PS.glyphColor(x, y, G.correctColor);
+                    letterCorrect++;
                     break;
             }
 
@@ -464,8 +451,16 @@ var G = {
 
         }
 
+        if(letterCorrect === correctLength) {
+            PS.audioPlay( "correctGuess", {fileTypes: ["wav"], path: "audio/", volume : 0.2} );
+        }
+        else {
+            PS.audioPlay( "normalGuess", {fileTypes: ["wav"], path: "audio/", volume : 0.2} );
+        }
+
         if(G.isGameOver()) {
             PS.statusText("Congratulations! You completed the puzzle!");
+            PS.audioPlay( "victory", {fileTypes: ["wav"], path: "audio/", volume : 0.4} );
         }
 
     },
@@ -487,37 +482,25 @@ Any value returned is ignored.
 */
 
 PS.init = function( system, options ) {
-	// Uncomment the following code line
-	// to verify operation:
-
-	// PS.debug( "PS.init() called\n" );
-
-	// This function should normally begin
-	// with a call to PS.gridSize( x, y )
-	// where x and y are the desired initial
-	// dimensions of the grid.
-	// Call PS.gridSize() FIRST to avoid problems!
-	// The sample call below sets the grid to the
-	// default dimensions (8 x 8).
-	// Uncomment the following code line and change
-	// the x and y parameters as needed.
-
-	// This is also a good place to display
-	// your game title or a welcome message
-	// in the status line above the grid.
-	// Uncomment the following code line and
-	// change the string parameter as needed.
-
-
 
     //Load audio if needed
     PS.audioLoad( "bgMusic", {fileTypes: ["mp3"], path: "audio/", loop : true, volume : 0.1} );
+    PS.audioLoad( "correctGuess", {fileTypes: ["wav"], path: "audio/", volume : 0.2} );
+    PS.audioLoad( "errorGuess", {fileTypes: ["wav"], path: "audio/", volume : 0.2} );
+    PS.audioLoad( "hori_switch", {fileTypes: ["wav"], path: "audio/", volume : 0.2} );
+    PS.audioLoad( "normalGuess", {fileTypes: ["wav"], path: "audio/", volume : 0.2} );
+    PS.audioLoad( "vert_switch", {fileTypes: ["wav"], path: "audio/", volume : 0.2} );
+    PS.audioLoad( "victory", {fileTypes: ["wav"], path: "audio/", volume : 0.2} );
 
 
 
+
+    //Play music
+    PS.audioPlay( "bgMusic", {fileTypes: ["mp3"], path: "audio/", loop : true, volume : 0.1} );
+
+
+    //Loads the main menu
     G.loadMenu();
-
-	// Add any other initialization code you need here.
 };
 
 /*
@@ -555,7 +538,7 @@ PS.touch = function( x, y, data, options ) {
 
         if(x === 0 && y === G.currPuzzleH) {
             //TODO HERE
-            //clicked back button
+            G.loadMenu();
         }
     }
 
@@ -591,11 +574,11 @@ This function doesn't have to do anything. Any value returned is ignored.
 */
 
 PS.release = function( x, y, data, options ) {
-	// Uncomment the following code line to inspect x/y parameters:
+    // Uncomment the following code line to inspect x/y parameters:
 
 
 
-	// Add code here for when the mouse button/touch is released over a bead.
+    // Add code here for when the mouse button/touch is released over a bead.
 };
 
 /*
@@ -609,7 +592,7 @@ This function doesn't have to do anything. Any value returned is ignored.
 */
 
 PS.enter = function( x, y, data, options ) {
-	// Uncomment the following code line to inspect x/y parameters:
+    // Uncomment the following code line to inspect x/y parameters:
     if(G.inMenu) {
         if(x >= 2 && x <= 3 && y >= 2 && y <= 3) {
             PS.color(2, 2, G.menulvlHoverColor);
@@ -651,7 +634,7 @@ PS.enter = function( x, y, data, options ) {
     }
 
 
-	// Add code here for when the mouse cursor/touch enters a bead.
+    // Add code here for when the mouse cursor/touch enters a bead.
 };
 
 /*
@@ -665,7 +648,7 @@ This function doesn't have to do anything. Any value returned is ignored.
 */
 
 PS.exit = function( x, y, data, options ) {
-	// Uncomment the following code line to inspect x/y parameters:
+    // Uncomment the following code line to inspect x/y parameters:
 
     if(G.inMenu) {
         if(x >= 2 && x <= 3 && y >= 2 && y <= 3) {
@@ -707,7 +690,7 @@ PS.exit = function( x, y, data, options ) {
         }
     }
 
-	// Add code here for when the mouse cursor/touch exits a bead.
+    // Add code here for when the mouse cursor/touch exits a bead.
 };
 
 /*
@@ -718,11 +701,11 @@ This function doesn't have to do anything. Any value returned is ignored.
 */
 
 PS.exitGrid = function( options ) {
-	// Uncomment the following code line to verify operation:
+    // Uncomment the following code line to verify operation:
 
-	// PS.debug( "PS.exitGrid() called\n" );
+    // PS.debug( "PS.exitGrid() called\n" );
 
-	// Add code here for when the mouse cursor/touch moves off the grid.
+    // Add code here for when the mouse cursor/touch moves off the grid.
 };
 
 /*
@@ -736,11 +719,11 @@ This function doesn't have to do anything. Any value returned is ignored.
 */
 
 PS.keyDown = function( key, shift, ctrl, options ) {
-	// Uncomment the following code line to inspect first three parameters:
+    // Uncomment the following code line to inspect first three parameters:
 
-	// PS.debug( "PS.keyDown(): key=" + key + ", shift=" + shift + ", ctrl=" + ctrl + "\n" );
+    // PS.debug( "PS.keyDown(): key=" + key + ", shift=" + shift + ", ctrl=" + ctrl + "\n" );
 
-	// Add code here for when a key is pressed.
+    // Add code here for when a key is pressed.
 };
 
 /*
@@ -754,11 +737,11 @@ This function doesn't have to do anything. Any value returned is ignored.
 */
 
 PS.keyUp = function( key, shift, ctrl, options ) {
-	// Uncomment the following code line to inspect first three parameters:
+    // Uncomment the following code line to inspect first three parameters:
 
-	// PS.debug( "PS.keyUp(): key=" + key + ", shift=" + shift + ", ctrl=" + ctrl + "\n" );
+    // PS.debug( "PS.keyUp(): key=" + key + ", shift=" + shift + ", ctrl=" + ctrl + "\n" );
 
-	// Add code here for when a key is released.
+    // Add code here for when a key is released.
 };
 
 /*
@@ -771,7 +754,7 @@ NOTE: Currently, only mouse wheel events are reported, and only when the mouse c
 */
 
 PS.input = function( sensors, options ) {
-	// Uncomment the following code lines to inspect first parameter:
+    // Uncomment the following code lines to inspect first parameter:
 
 //	 var device = sensors.wheel; // check for scroll wheel
 //
@@ -779,6 +762,5 @@ PS.input = function( sensors, options ) {
 //	   PS.debug( "PS.input(): " + device + "\n" );
 //	 }
 
-	// Add code here for when an input event is detected.
+    // Add code here for when an input event is detected.
 };
-
