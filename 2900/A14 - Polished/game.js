@@ -503,7 +503,6 @@ var G = {
     },
 
     hint : function() {
-        var done = false;
 
         //var x = PS.random(G.currPuzzleW-2)+1;
         //var y = PS.random(G.currPuzzleH-2)+1;
@@ -512,13 +511,20 @@ var G = {
         for(var x = 0; x < G.currPuzzleW; x++) {
             for (var y = 0; y < G.currPuzzleH; y++) {
                 if(G.activeLevelMap[y][x] !== 0) {
-                    if(G.currentPlayerMap[y][x] !== G.activeLevelMap[y][x]) {
+                    if(G.currentPlayerMap[y][x] !== G.activeLevelMap[y][x].toLowerCase()) {
                         options.push([x,y]);
                     }
                 }
             }
         }
+
+        //No options for hints
+        if(options.length === 0) {
+            return;
+        }
+
         var hint = PS.random(options.length)-1;
+
         var x = options[hint][0];
         var y = options[hint][1];
 
