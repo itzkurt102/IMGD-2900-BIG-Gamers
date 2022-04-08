@@ -199,7 +199,6 @@ var G = {
             for (var y = 0; y < G.currPuzzleH; y++) {
                 //only check if there is supposed to be a letter there
                 if(G.activeLevelMap[y][x] !== 0) {
-                    PS.debug(G.activeLevelMap[y][x]);
                     if(G.currentPlayerMap[y][x] !== G.activeLevelMap[y][x].toLowerCase()) {
                         return false;
                     }
@@ -487,7 +486,6 @@ var G = {
         if(G.isGameOver()) {
             PS.statusText("Congratulations! You completed the puzzle!");
             PS.audioPlay( "victory", {fileTypes: ["wav"], path: "audio/", volume : 0.4} );
-            //TODO MAIN MENU AFTER A BIT
             return;
         }
 
@@ -503,6 +501,32 @@ var G = {
 
 
     },
+
+    hint : function() {
+        var done = false;
+
+        //var x = PS.random(G.currPuzzleW-2)+1;
+        //var y = PS.random(G.currPuzzleH-2)+1;
+
+        var options = [];
+        for(var x = 0; x < G.currPuzzleW; x++) {
+            for (var y = 0; y < G.currPuzzleH; y++) {
+                if(G.activeLevelMap[y][x] !== 0) {
+                    if(G.currentPlayerMap[y][x] !== G.activeLevelMap[y][x]) {
+                        options.push([x,y]);
+                    }
+                }
+            }
+        }
+        var hint = PS.random(options.length)-1;
+        var x = options[hint][0];
+        var y = options[hint][1];
+
+        PS.glyphColor(x, y, G.correctColor);
+        PS.glyph(x, y, G.activeLevelMap[y][x].toLowerCase());
+        G.currentPlayerMap[y][x] = G.activeLevelMap[y][x].toLowerCase();
+
+    }
 
 
 
@@ -556,6 +580,18 @@ PS.touch = function( x, y, data, options ) {
 
     //If we are not in the menu anymore
     if(!G.inMenu) {
+        //clicked on hint
+        if(x === G.currPuzzleW-1 && y === G.currPuzzleH) {
+            G.hint();
+            return;
+        }
+
+        //Clicked on main menu button
+        if(x === 0 && y === G.currPuzzleH) {
+            G.loadMenu();
+            return;
+        }
+
         G.highlightGuessLoc(x, y);
 
         if(G.levelSolution[[x, y].join('|')] == null) {
@@ -568,16 +604,6 @@ PS.touch = function( x, y, data, options ) {
             });
         }
 
-        //clicked on hint
-        if(x === G.currPuzzleW-1 && y === G.currPuzzleH) {
-            //TODO Handle hints
-
-        }
-
-        //Clicked on main menu button
-        if(x === 0 && y === G.currPuzzleH) {
-            G.loadMenu();
-        }
     }
 
     //If we are in the menu
