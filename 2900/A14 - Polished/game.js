@@ -43,10 +43,10 @@ var G = {
         [0,0,0,0,'o',0,0,0,0,0,0,0,0],
         [0,'g','e','o','r','g','i','a',0,0,'u',0,0],
         [0,0,0,0,'i',0,0,0,0,0,'t',0,0],
-        [0,0,'k',0,'d',0,0,0,0,0,'a',0,'i'],
-        [0,'t','e','x','a','s',0,0,0,'o','h','i','o'],
-        [0,0,'n',0,0,0,0,0,0,0,0,0,'w'],
-        [0,0,'t',0,'m',0,'a','r','i','z','o','n','a'],
+        [0,0,'k',0,'d',0,0,0,0,0,'a',0,'I'],
+        [0,'t','e','x','a','s',0,0,0,'o','h','i','O'],
+        [0,0,'n',0,0,0,0,0,0,0,0,0,'W'],
+        [0,0,'t',0,'m',0,'a','r','i','z','o','n','A'],
         [0,0,'u',0,'a',0,'l',0,0,0,0,'e',0],
         ['m','i','c','h','i','g','a','n',0,0,0,'w',0],
         [0,0,'k',0,'n',0,'s',0,0,0,0,'y',0],
@@ -54,10 +54,10 @@ var G = {
         [0,0,0,0,0,0,'a',0,0,0,0,'r',0],
         [0,0,0,0,0,0,0,0,0,0,0,'k',0],],
     level2Map: [
-        [0,0,0,0,0,0,0,0,0,0,'p',0],
-        [0,0,'c',0,0,0,0,0,'B','O','A','T'],
-        [0,0,'o','c','e','a','n',0,0,0,'l',0],
-        ['b',0,'c',0,0,0,0,'s','w','i','m',0],
+        [0,0,0,0,0,0,0,0,0,0,'P',0],
+        [0,0,'c',0,0,0,0,0,'b','o','A','t'],
+        [0,0,'o','c','e','a','n',0,0,0,'L',0],
+        ['b',0,'c',0,0,0,0,'s','w','i','M',0],
         ['e',0,'o',0,0,'s','e','a',0,0,0,0],
         ['a',0,'n',0,0,'h',0,'n',0,0,0,0],
         ['c','r','u','i','s','e',0,'d',0,0,0,0],
@@ -72,12 +72,28 @@ var G = {
         ['s','a','l','i','s','b','u','r','y',0,0],
         [0,'y',0,0,'t',0,0,'g',0,0,0],
         [0,0,0,0,'i',0,0,'a',0,0,0],
-        [0,'e','a','s','t',0,'u','n','i','t','y'],
+        [0,'e','a','s','t',0,'U','N','I','T','Y'],
         [0,0,0,0,'u',0,0,0,0,0,0],
         [0,0,0,0,'t',0,0,0,0,0,0],
-        ['f','u','l','l','e','r',0,0,0,0,0],
-    ],
-    levelSizes: [[13,15],[12,9], [11,12]],
+        ['f','u','l','l','e','r',0,0,0,0,0],],
+    level4Map: [
+        [0,0,0,0,0,0,0,0,'s',0,0],
+        [0,0,0,'S',0,'d','e','s','i','g','n'],
+        [0,0,0,'T',0,0,0,0,'g',0,0],
+        [0,0,0,'M','a','p','p','i','n','g',0],
+        [0,0,0,0,0,0,0,0,'i',0,0],
+        [0,0,0,'a',0,0,0,0,'f',0,0],
+        [0,'r','e','f','l','e','c','t','i','o','n'],
+        [0,0,0,'f',0,0,0,0,'e',0,0],
+        [0,'p','r','o','c','e','d','u','r','a','l'],
+        [0,0,0,'r',0,0,0,0,0,0,'t'],
+        [0,0,0,'d',0,0,0,0,0,0,'m'],
+        ['h','u','m','a','n',0,0,0,0,0,0],
+        [0,0,0,'n',0,0,0,0,0,0,0],
+        [0,0,0,'c',0,0,0,0,0,0,0],
+        [0,0,'m','e','m','o','r','y',0,0,0],
+        ],
+    levelSizes: [[13,15],[12,9], [11,12], [11,15]],
     currentPlayerMap: [],
     levelSolution: {},
     currWordSolution: [],
@@ -95,9 +111,9 @@ var G = {
     inMenu: true,
     menuBorderColor: 0x7B838C,
     menuBeadBGColor: 0xF2EBDC,
-    menulvl1BGColor: 0XA6BC09,
+    menulvl1BGColor: 0xF2CB05,
     menulvl2BGColor: 0x019587,
-    menulvl3BGColor: 0xF2CB05,
+    menulvl3BGColor: 0xA6BC09,
     menulvl4BGColor: 0xA6035D,
     menulvlHoverColor: 0xF1F8FB,
     menubackgroundColor: 0x363940,
@@ -129,36 +145,36 @@ var G = {
         PS.fade(PS.ALL, PS.ALL, 20);
 
         PS.color(2, 2, G.menulvl1BGColor);
-        PS.glyph(2, 2, 0x1F600);
+        PS.glyph(2, 2, 0x1F5FD);
         PS.color(3, 2, G.menulvl1BGColor);
-        PS.glyph(3, 2, 0x1F600);
+        PS.glyph(3, 2, 0x1F30E);
         PS.color(2, 3, G.menulvl1BGColor);
         PS.glyph(2, 3, 0x004C);
         PS.color(3, 3, G.menulvl1BGColor);
         PS.glyph(3, 3, 0x0031);
 
         PS.color(5, 2, G.menulvl2BGColor);
-        PS.glyph(5, 2, 0x1F600);
+        PS.glyph(5, 2, 0x1F3DD);
         PS.color(6, 2, G.menulvl2BGColor);
-        PS.glyph(6, 2, 0x1F600);
+        PS.glyph(6, 2, 0x1F965);
         PS.color(5, 3, G.menulvl2BGColor);
         PS.glyph(5, 3, 0x004C);
         PS.color(6, 3, G.menulvl2BGColor);
         PS.glyph(6, 3, 0x0032);
 
         PS.color(2, 5, G.menulvl3BGColor);
-        PS.glyph(2, 5, 0x1F600);
+        PS.glyph(2, 5, 0x1F3EB);
         PS.color(3, 5, G.menulvl3BGColor);
-        PS.glyph(3, 5, 0x1F600);
+        PS.glyph(3, 5, 0x1F3E2);
         PS.color(2, 6, G.menulvl3BGColor);
         PS.glyph(2, 6, 0x004C);
         PS.color(3, 6, G.menulvl3BGColor);
         PS.glyph(3, 6, 0x0033);
 
         PS.color(5, 5, G.menulvl4BGColor);
-        PS.glyph(5, 5, 0x1F600);
+        PS.glyph(5, 5, 0x1F621);
         PS.color(6, 5, G.menulvl4BGColor);
-        PS.glyph(6, 5, 0x1F600);
+        PS.glyph(6, 5, 0x1F480);
         PS.color(5, 6, G.menulvl4BGColor);
         PS.glyph(5, 6, 0x004C);
         PS.color(6, 6, G.menulvl4BGColor);
@@ -576,7 +592,7 @@ PS.touch = function( x, y, data, options ) {
             G.loadLevel(3, G.level3Map);
         }
         else if(x >= 5 && x <= 6 && y >= 5 && y <= 6) {
-            G.loadLevel(4, G.level3Map);
+            G.loadLevel(4, G.level4Map);
         }
 
 
