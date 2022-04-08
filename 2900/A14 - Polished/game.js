@@ -120,7 +120,7 @@ var G = {
     activeLevelMap: [],
     buttonHoverColor: 0xF1F8FB,
     buttonNormalColor: 0x8AA6A3,
-    buttonGlyphColor: 0xD94A3D,
+    buttonGlyphColor: 0x14140F,
     defaultText: "Click on a word spot to guess!",
 
 
