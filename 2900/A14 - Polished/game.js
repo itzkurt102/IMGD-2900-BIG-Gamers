@@ -178,11 +178,15 @@ var G = {
     isGameOver: function() {
 
 
-        //Set up grid:
+        //Check grid
         for(var x = 0; x < G.currPuzzleW; x++) {
             for (var y = 0; y < G.currPuzzleH; y++) {
-                if(G.currentPlayerMap[y][x] !== G.activeLevelMap[y][x]) {
-                    return false;
+                //only check if there is supposed to be a letter there
+                if(G.activeLevelMap[y][x] !== 0) {
+                    PS.debug(G.activeLevelMap[y][x]);
+                    if(G.currentPlayerMap[y][x] !== G.activeLevelMap[y][x].toLowerCase()) {
+                        return false;
+                    }
                 }
             }
         }
@@ -211,7 +215,8 @@ var G = {
         G.levelSolution = {};
 
         //reset the current player map to empty array filled with 0s
-        G.currentPlayerMap = new Array(G.levelSizes[lvl][0]).fill(0).map(() => new Array(G.levelSizes[lvl][1]).fill(0));
+        G.currentPlayerMap = new Array(G.levelSizes[lvl][1]).fill(0).map(() => new Array(G.levelSizes[lvl][0]).fill(0));
+
 
         //init
         PS.gridColor(0x4C5958);
@@ -249,10 +254,10 @@ var G = {
 
                     //If it is capitalized, we are providing a hint, so we draw the complete word
                     if(G.isCharacterUpper(levelMap[y][x])) {
-                        levelMap[y][x] = levelMap[y][x].toLowerCase();
+                        //levelMap[y][x] = levelMap[y][x].toLowerCase();
                         PS.glyphColor(x, y, G.correctColor);
-                        PS.glyph(x, y, levelMap[y][x]);
-                        G.currentPlayerMap[y][x] = levelMap[y][x];
+                        PS.glyph(x, y, levelMap[y][x].toLowerCase());
+                        G.currentPlayerMap[y][x] = levelMap[y][x].toLowerCase();
                     }
 
                 }
@@ -395,6 +400,7 @@ var G = {
             G.currDirection = "H";
         }
 
+
         var correctLength = G.currWordSolution.length;
         //Check word length
         if(text.length !== correctLength) {
@@ -457,24 +463,28 @@ var G = {
 
             //And the correct glyph
             PS.glyph(x, y, char);
-
             G.currentPlayerMap[y][x] = char;
 
 
-
-        }
-
-        if(letterCorrect === correctLength) {
-            PS.audioPlay( "correctGuess", {fileTypes: ["wav"], path: "audio/", volume : 0.2} );
-        }
-        else {
-            PS.audioPlay( "normalGuess", {fileTypes: ["wav"], path: "audio/", volume : 0.2} );
         }
 
         if(G.isGameOver()) {
             PS.statusText("Congratulations! You completed the puzzle!");
             PS.audioPlay( "victory", {fileTypes: ["wav"], path: "audio/", volume : 0.4} );
+            //TODO MAIN MENU AFTER A BIT
+            return;
         }
+
+        if(letterCorrect === correctLength) {
+            PS.audioPlay( "correctGuess", {fileTypes: ["wav"], path: "audio/", volume : 0.2} );
+            PS.statusText("Nice Job!");
+        }
+        else {
+            PS.audioPlay( "normalGuess", {fileTypes: ["wav"], path: "audio/", volume : 0.2} );
+            PS.statusText("Green = ✓, Red = ✖, Yellow = Wrong Spot.");
+        }
+
+
 
     },
 
@@ -543,21 +553,19 @@ PS.touch = function( x, y, data, options ) {
         }
 
         //clicked on hint
-
         if(x === G.currPuzzleW-1 && y === G.currPuzzleH) {
-            //TODO HERE
-            //clicked hint
+            //TODO Handle hints
+
         }
 
+        //Clicked on main menu button
         if(x === 0 && y === G.currPuzzleH) {
-            //TODO HERE
             G.loadMenu();
         }
     }
 
     //If we are in the menu
     else {
-        //TODO make this correspond to level
         if(x >= 2 && x <= 3 && y >= 2 && y <= 3) {
             G.loadLevel(1, G.level1Map);
         }
@@ -634,13 +642,11 @@ PS.enter = function( x, y, data, options ) {
     }
     else {
         if(x === G.currPuzzleW-1 && y === G.currPuzzleH) {
-            //TODO HERE
             PS.color(G.currPuzzleW-1, G.currPuzzleH, G.buttonHoverColor);
             PS.statusText("Click for a hint!");
         }
 
         if(x === 0 && y === G.currPuzzleH) {
-            //TODO HERE
             PS.color(0, G.currPuzzleH, G.buttonHoverColor);
             PS.statusText("Click to go back to the main menu.");
         }
@@ -691,13 +697,11 @@ PS.exit = function( x, y, data, options ) {
     }
     else {
         if(x === G.currPuzzleW-1 && y === G.currPuzzleH) {
-            //TODO HERE
             PS.color(G.currPuzzleW-1, G.currPuzzleH, G.buttonNormalColor);
             PS.statusText(G.defaultText);
         }
 
         if(x === 0 && y === G.currPuzzleH) {
-            //TODO HERE
             PS.color(0, G.currPuzzleH, G.buttonNormalColor);
             PS.statusText(G.defaultText);
         }
