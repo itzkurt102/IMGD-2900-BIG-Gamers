@@ -553,6 +553,15 @@ Any value returned is ignored.
 PS.init = function( system, options ) {
 
     //Load audio if needed
+    /*
+    Background music credits:
+        BLVK - Divine
+        Toshifumi Hinata - Reflections
+        Toshifumi Hinata - Menuet
+        Toshifumi Hinata - Woman in the Isle
+        B l o m s t - Chill rain (EXTENDED)
+
+    */
     PS.audioLoad( "bgMusic", {fileTypes: ["mp3"], path: "audio/", loop : true, volume : 0.1} );
     PS.audioLoad( "correctGuess", {fileTypes: ["wav"], path: "audio/", volume : 0.2} );
     PS.audioLoad( "errorGuess", {fileTypes: ["wav"], path: "audio/", volume : 0.2} );
