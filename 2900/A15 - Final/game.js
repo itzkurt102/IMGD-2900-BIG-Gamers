@@ -98,7 +98,7 @@ var G = {
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         ['✪', '⇐', 'R', 'O', 'T', 'A', 'T', 'E', 0, 0, 0, 0, 0, 0],
         ['⇑', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        ['R', 0, 'C', 'O', 'L', 'O', 'R', '-', '-', 'K', 'E', 'Y', ':', 0],
+        ['R', 0, 'C', 'O', 'L', 'O', 'R', '-', 'K', 'E', 'Y', ':', 0, 0],
         ['O', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         ['T', 0, 'G', 'R', 'E', 'E', 'N', '✅', 0, 0, 'W', 'O', 'R', 'D'],
         ['A', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -135,6 +135,7 @@ var G = {
     buttonHoverColor: 0xF1F8FB,
     buttonNormalColor: 0x8AA6A3,
     buttonGlyphColor: 0x14140F,
+    menuRulesColor: 0xb5ed74,
     defaultText: "Click on a word spot to guess!",
 
 
@@ -144,14 +145,14 @@ var G = {
 
         G.inMenu = true;
 
-        PS.gridSize(9, 9);
+        PS.gridSize(9, 10);
         PS.gridColor(G.menubackgroundColor);
         PS.color(PS.ALL, PS.ALL, G.menuBeadBGColor);
         PS.border(PS.ALL, PS.ALL, 0);
         PS.color(0, PS.ALL, G.menuBorderColor);
         PS.color(8, PS.ALL, G.menuBorderColor);
         PS.color(PS.ALL, 0, G.menuBorderColor);
-        PS.color(PS.ALL, 8, G.menuBorderColor);
+        PS.color(PS.ALL, 9, G.menuBorderColor);
 
         PS.statusText("Click on a level to start!");
         PS.statusColor(PS.COLOR_WHITE);
@@ -193,6 +194,17 @@ var G = {
         PS.glyph(5, 6, 0x004C);
         PS.color(6, 6, G.menulvl4BGColor);
         PS.glyph(6, 6, 0x0034);
+
+        PS.color(2, 8, G.menuRulesColor);
+        PS.glyph(2, 8, "R");
+        PS.color(3, 8, G.menuRulesColor);
+        PS.glyph(3, 8, "U");
+        PS.color(4, 8, G.menuRulesColor);
+        PS.glyph(4, 8, "L");
+        PS.color(5, 8, G.menuRulesColor);
+        PS.glyph(5, 8, "E");
+        PS.color(6, 8, G.menuRulesColor);
+        PS.glyph(6, 8, "S");
 
 
     },
@@ -252,7 +264,7 @@ var G = {
         PS.statusText("Click on a spot to guess!");
         
         if(levelNum === 5) {
-            PS.statusText("Tutorial: Learn the rules!");
+            PS.statusText("Hover boxes for more information!");
         }
 
 
@@ -315,7 +327,23 @@ var G = {
 
         if(levelNum === 5) {
             //Add some additional details to the tutorial
-            //TODO
+            PS.glyphColor(10, 8, G.halfWrongColor);
+            PS.glyph(10, 8, "r");
+            PS.glyphColor(11, 8, G.halfWrongColor);
+            PS.glyph(11, 8, "w");
+            PS.glyphColor(12, 8, G.halfWrongColor);
+            PS.glyph(12, 8, "o");
+            PS.glyphColor(13, 8, G.correctColor);
+            PS.glyph(13, 8, "d");
+
+            PS.glyphColor(10, 10, G.fullWrongColor);
+            PS.glyph(10, 10, "z");
+            PS.glyphColor(11, 10, G.fullWrongColor);
+            PS.glyph(11, 10, "x");
+            PS.glyphColor(12, 10, G.halfWrongColor);
+            PS.glyph(12, 10, "o");
+            PS.glyphColor(13, 10, G.correctColor);
+            PS.glyph(13, 10, "d");
         }
 
     },
@@ -607,8 +635,7 @@ PS.init = function( system, options ) {
 
 
     //Loads the main menu
-    //G.loadMenu();
-    G.loadLevel(5, G.tutorial);
+    G.loadMenu();
 };
 
 /*
@@ -637,7 +664,13 @@ PS.touch = function( x, y, data, options ) {
             return;
         }
 
+
         G.highlightGuessLoc(x, y);
+
+        if(G.activeLevelMap === G.tutorial) {
+            //No guessing allowed in tutorial
+            return;
+        }
 
         if(G.levelSolution[[x, y].join('|')] == null) {
             PS.statusText("Not a valid guess location, click elsewhere!");
@@ -648,6 +681,7 @@ PS.touch = function( x, y, data, options ) {
                 G.guess(text);
             });
         }
+
 
     }
 
@@ -664,6 +698,9 @@ PS.touch = function( x, y, data, options ) {
         }
         else if(x >= 5 && x <= 6 && y >= 5 && y <= 6) {
             G.loadLevel(4, G.level4Map);
+        }
+        else if(x >= 2 && x <= 6 && y === 8) {
+            G.loadLevel(5, G.tutorial);
         }
 
 
@@ -726,6 +763,13 @@ PS.enter = function( x, y, data, options ) {
             PS.color(5, 6, G.menulvlHoverColor);
             PS.color(6, 6, G.menulvlHoverColor);
         }
+        else if(x >= 2 && x <= 6 && y === 8) {
+            PS.color(2, 8, G.menulvlHoverColor);
+            PS.color(3, 8, G.menulvlHoverColor);
+            PS.color(4, 8, G.menulvlHoverColor);
+            PS.color(5, 8, G.menulvlHoverColor);
+            PS.color(6, 8, G.menulvlHoverColor);
+        }
     }
     else {
         if(x === G.currPuzzleW-1 && y === G.currPuzzleH) {
@@ -736,6 +780,28 @@ PS.enter = function( x, y, data, options ) {
         if(x === 0 && y === G.currPuzzleH) {
             PS.color(0, G.currPuzzleH, G.buttonHoverColor);
             PS.statusText("Click to go back to the main menu.");
+        }
+
+        if(G.activeLevelMap === G.tutorial) {
+            if(x > 1 && y === 6) {
+                PS.statusText("Green → in the right location.");
+            }
+            else if(x > 1 && y === 4) {
+                PS.statusText("Each letter's color means something.");
+            }
+            else if(x > 1 && y === 8) {
+                PS.statusText("Yellow → wrong location, but in the word.");
+            }
+            else if(x > 1 && y === 10) {
+                PS.statusText("Red → letter is not in the word.");
+            }
+            else if((x===0 && y <= 9 && y >= 2) || (y===2 && x <= 7 && x >= 0)) {
+                PS.statusText("Touch an intersection to rotate highlight.");
+            }
+            else if(y === 0) {
+                PS.statusText("Touch boxes like these to guess the word.");
+            }
+
         }
     }
 
@@ -781,6 +847,13 @@ PS.exit = function( x, y, data, options ) {
             PS.color(5, 6, G.menulvl4BGColor);
             PS.color(6, 6, G.menulvl4BGColor);
         }
+        else if(x >= 2 && x <= 6 && y === 8) {
+            PS.color(2, 8, G.menuRulesColor);
+            PS.color(3, 8, G.menuRulesColor);
+            PS.color(4, 8, G.menuRulesColor);
+            PS.color(5, 8, G.menuRulesColor);
+            PS.color(6, 8, G.menuRulesColor);
+        }
     }
     else {
         if(x === G.currPuzzleW-1 && y === G.currPuzzleH) {
@@ -792,6 +865,7 @@ PS.exit = function( x, y, data, options ) {
             PS.color(0, G.currPuzzleH, G.buttonNormalColor);
             PS.statusText(G.defaultText);
         }
+
     }
 
     // Add code here for when the mouse cursor/touch exits a bead.
