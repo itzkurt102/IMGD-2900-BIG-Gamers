@@ -124,7 +124,7 @@ var G = {
     currWordDir: "H",
     inMenu: true,
     menuBorderColor: 0x7B838C,
-    menuBeadBGColor: 0xF2EBDC,
+    menuBeadBGColor: 0xecf7df,
     menulvl1BGColor: 0xF2CB05,
     menulvl2BGColor: 0x019587,
     menulvl3BGColor: 0xA6BC09,
@@ -137,6 +137,11 @@ var G = {
     buttonGlyphColor: 0x14140F,
     menuRulesColor: 0xb5ed74,
     defaultText: "Click on a word spot to guess!",
+    colorSwap: false,
+    borderAnimLoc: [],
+    borderAnimDir: [],
+    borderAnimSprite: "",
+    tickCounter: 0,
 
 
 
@@ -157,7 +162,7 @@ var G = {
         PS.statusText("Click on a level to start!");
         PS.statusColor(PS.COLOR_WHITE);
 
-        PS.fade(PS.ALL, PS.ALL, 20);
+        PS.fade(PS.ALL, PS.ALL, 30);
 
         PS.color(2, 2, G.menulvl1BGColor);
         PS.glyph(2, 2, 0x1F5FD);
@@ -205,6 +210,17 @@ var G = {
         PS.glyph(5, 8, "E");
         PS.color(6, 8, G.menuRulesColor);
         PS.glyph(6, 8, "S");
+
+        var newSprite = PS.spriteSolid(1, 1);
+
+        //Set sprite properties
+        PS.spritePlane(newSprite, 1);
+        PS.spriteSolidColor(newSprite, 0xF2D14F);
+        PS.spriteMove(newSprite, 0,0);
+        G.borderAnimLoc = [0,0];
+        G.borderAnimDir = [1,0];
+        G.borderAnimSprite = newSprite;
+        G.tickCounter = 0;
 
 
     },
@@ -262,6 +278,7 @@ var G = {
         //init
         PS.gridColor(0x4C5958);
         PS.statusText("Click on a spot to guess!");
+        PS.statusColor(PS.COLOR_WHITE);
         
         if(levelNum === 5) {
             PS.statusText("Hover boxes for more information!");
@@ -274,11 +291,14 @@ var G = {
         var height = levelMap.length;
         G.currPuzzleH = height;
 
-        //Add hint button
-        PS.glyph(width-1, height, "⁇");
-        PS.glyphColor(width-1, height, G.buttonGlyphColor);
-        PS.color(width-1, height, G.buttonNormalColor);
-        PS.fade(width-1, height, 20);
+        if(levelNum !== 5) {
+            //Add hint button if not in the tutorial level
+            PS.glyph(width-1, height, "⁇");
+            PS.glyphColor(width-1, height, G.buttonGlyphColor);
+            PS.color(width-1, height, G.buttonNormalColor);
+            PS.fade(width-1, height, 20);
+        }
+
 
         //Add back button
         PS.glyph(0, height, 0x21A9);
@@ -598,6 +618,39 @@ var G = {
         PS.glyph(x, y, G.activeLevelMap[y][x].toLowerCase());
         G.currentPlayerMap[y][x] = G.activeLevelMap[y][x].toLowerCase();
 
+    },
+
+    tick : function() {
+        G.tickCounter += 1;
+        if(G.inMenu) {
+            if(G.tickCounter % 100 === 0) {
+                var rand_color = [PS.random(50), PS.random(50), PS.random(50)];
+                PS.color(0, PS.ALL, rand_color);
+                PS.color(8, PS.ALL, rand_color);
+                PS.color(PS.ALL, 0, rand_color);
+                PS.color(PS.ALL, 9, rand_color);
+            }
+
+
+            //Move border animation
+            if(G.borderAnimLoc[0] == 0 && G.borderAnimLoc[1] == 0) {
+                G.borderAnimDir = [1, 0];
+            }
+            else if(G.borderAnimLoc[0] == 8 && G.borderAnimLoc[1] == 0) {
+                G.borderAnimDir = [0, 1];
+            }
+            else if(G.borderAnimLoc[0] == 8 && G.borderAnimLoc[1] == 9) {
+                G.borderAnimDir = [-1, 0];
+            }
+            else if(G.borderAnimLoc[0] == 0 && G.borderAnimLoc[1] == 9) {
+                G.borderAnimDir = [0, -1];
+            }
+            //Update location and move it there
+            G.borderAnimLoc[0] = G.borderAnimLoc[0]+G.borderAnimDir[0];
+            G.borderAnimLoc[1] = G.borderAnimLoc[1]+G.borderAnimDir[1];
+
+            PS.spriteMove(G.borderAnimSprite, G.borderAnimLoc[0], G.borderAnimLoc[1]);
+        }
     }
 
 
@@ -633,6 +686,7 @@ PS.init = function( system, options ) {
     //Play music
     PS.audioPlay( "bgMusic", {fileTypes: ["mp3"], path: "audio/", loop : true, volume : 0.1} );
 
+    PS.timerStart( 5, G.tick );
 
     //Loads the main menu
     G.loadMenu();
