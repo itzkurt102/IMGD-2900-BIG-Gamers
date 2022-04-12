@@ -34,9 +34,12 @@ If you don't use JSHint (or are using it with a configuration file), you can saf
 
 "use strict"; // Do NOT remove this directive!
 
+//All our custom functions and data
 var G = {
 
     //Game variables and constants
+
+    //Level Maps used to easily load in levels
     level1Map: [
         [0,0,0,0,'f',0,0,0,0,0,0,0,0],
         [0,0,0,0,'l',0,0,0,0,0,0,0,0],
@@ -93,6 +96,8 @@ var G = {
         [0,0,0,'c',0,0,0,0,0,0,0],
         [0,0,'m','e','m','o','r','y',0,0,0],
         ],
+
+    //tutorial
     tutorial: [
         ['T','O','U','C','H','-','T','O','-','G','U','E','S','S'],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -107,22 +112,31 @@ var G = {
         [0, 0, 'R', 'E', 'D', '❌', 0, 0, 0, 0, 'w', 'o', 'r', 'd'],
 
     ],
-    levelSizes: [[13,15],[12,9], [11,12], [11,15], [14,11]],
-    currentPlayerMap: [],
-    levelSolution: {},
-    currWordSolution: [],
+    levelSizes: [[13,15],[12,9], [11,12], [11,15], [14,11]], //sizes of levels
+    currentPlayerMap: [], //stores the player's current progress
+    activeLevelMap: [], //stores the active level map
+    levelSolution: {}, //Hashtable that stores the current level solution
+    currWordSolution: [], //Stores the currently highlighted word's solution
+    currWordStartCoord: [0,0],
+    currWordDir: "H", //The direction of the currently highlighted word.
+    currDirection: "H", //H or V for horizontal or vertical. Direction of next highlight.
+    currPuzzleW: 0, //Stores current puzzle width
+    currPuzzleH: 0, //Stores current puzzle height
+    inMenu: true, //boolean to keep track of whether we are in the menu or not
+    defaultText: "Click on a word spot to guess!", //Default statusline text
+    colorSwap: false, //for menu animations
+    borderAnimLoc: [], //for menu animations
+    borderAnimDir: [], //for menu animations
+    borderAnimSprite: "", //for menu animations
+    tickCounter: 0, //for menu animations
+
+    //Colors:
     blankGridColor: 0x014040,
     blankUnwritableGridColor: 0x011F20,
     highlightColor: 0x038F85,
     fullWrongColor: 0xC5243D,
     halfWrongColor: 0xFFAF1C,
     correctColor: 0x84FB91,
-    currDirection: "H", //H or V for horizontal or vertical
-    currPuzzleW: 0,
-    currPuzzleH: 0,
-    currWordStartCoord: [0,0],
-    currWordDir: "H",
-    inMenu: true,
     menuBorderColor: 0x7B838C,
     menuBeadBGColor: 0xecf7df,
     menulvl1BGColor: 0xF2CB05,
@@ -131,17 +145,10 @@ var G = {
     menulvl4BGColor: 0xA6035D,
     menulvlHoverColor: 0xF1F8FB,
     menubackgroundColor: 0x363940,
-    activeLevelMap: [],
     buttonHoverColor: 0xF1F8FB,
     buttonNormalColor: 0x8AA6A3,
     buttonGlyphColor: 0x14140F,
     menuRulesColor: 0xb5ed74,
-    defaultText: "Click on a word spot to guess!",
-    colorSwap: false,
-    borderAnimLoc: [],
-    borderAnimDir: [],
-    borderAnimSprite: "",
-    tickCounter: 0,
 
 
 
@@ -150,20 +157,26 @@ var G = {
 
         G.inMenu = true;
 
+        //Set gridsize and background color
         PS.gridSize(9, 10);
         PS.gridColor(G.menubackgroundColor);
+
+        //Set defaults for menu beads
         PS.color(PS.ALL, PS.ALL, G.menuBeadBGColor);
         PS.border(PS.ALL, PS.ALL, 0);
+        PS.fade(PS.ALL, PS.ALL, 30);
+
+        //draw a border around
         PS.color(0, PS.ALL, G.menuBorderColor);
         PS.color(8, PS.ALL, G.menuBorderColor);
         PS.color(PS.ALL, 0, G.menuBorderColor);
         PS.color(PS.ALL, 9, G.menuBorderColor);
 
+        //Update status line
         PS.statusText("Click on a level to start!");
         PS.statusColor(PS.COLOR_WHITE);
 
-        PS.fade(PS.ALL, PS.ALL, 30);
-
+        //Level 1
         PS.color(2, 2, G.menulvl1BGColor);
         PS.glyph(2, 2, 0x1F5FD);
         PS.color(3, 2, G.menulvl1BGColor);
@@ -173,6 +186,7 @@ var G = {
         PS.color(3, 3, G.menulvl1BGColor);
         PS.glyph(3, 3, 0x0031);
 
+        //Level 2
         PS.color(5, 2, G.menulvl2BGColor);
         PS.glyph(5, 2, 0x1F3DD);
         PS.color(6, 2, G.menulvl2BGColor);
@@ -182,6 +196,7 @@ var G = {
         PS.color(6, 3, G.menulvl2BGColor);
         PS.glyph(6, 3, 0x0032);
 
+        //Level 3
         PS.color(2, 5, G.menulvl3BGColor);
         PS.glyph(2, 5, 0x1F3EB);
         PS.color(3, 5, G.menulvl3BGColor);
@@ -191,6 +206,7 @@ var G = {
         PS.color(3, 6, G.menulvl3BGColor);
         PS.glyph(3, 6, 0x0033);
 
+        //Level 4
         PS.color(5, 5, G.menulvl4BGColor);
         PS.glyph(5, 5, 0x1F621);
         PS.color(6, 5, G.menulvl4BGColor);
@@ -200,6 +216,7 @@ var G = {
         PS.color(6, 6, G.menulvl4BGColor);
         PS.glyph(6, 6, 0x0034);
 
+        //Tutorial/Rules Level
         PS.color(2, 8, G.menuRulesColor);
         PS.glyph(2, 8, "R");
         PS.color(3, 8, G.menuRulesColor);
@@ -211,6 +228,7 @@ var G = {
         PS.color(6, 8, G.menuRulesColor);
         PS.glyph(6, 8, "S");
 
+        //Makes a sprite that moves along the border in a nice animation
         var newSprite = PS.spriteSolid(1, 1);
 
         //Set sprite properties
@@ -221,26 +239,25 @@ var G = {
         G.borderAnimDir = [1,0];
         G.borderAnimSprite = newSprite;
         G.tickCounter = 0;
-
-
     },
 
+    //returns true if character is a letter, false otherwise
     isCharacterALetter: function(char) {
         return (/[a-zA-Z]/).test(char);
     },
 
+    //returns true if character is a capital letter, false otherwise
     isCharacterUpper: function(char) {
         return (/[A-Z]/).test(char);
     },
 
+    //Checks if game is over. Returns true if level has been completed.
     isGameOver: function() {
-
-
-        //Check grid
         for(var x = 0; x < G.currPuzzleW; x++) {
             for (var y = 0; y < G.currPuzzleH; y++) {
                 //only check if there is supposed to be a letter there
                 if(G.activeLevelMap[y][x] !== 0) {
+                    //If any of the player's letters are not the same as the solution, return false
                     if(G.currentPlayerMap[y][x] !== G.activeLevelMap[y][x].toLowerCase()) {
                         return false;
                     }
@@ -248,10 +265,11 @@ var G = {
             }
         }
 
+        //If it got through the full board, we know it is totally correct
         return true;
     },
 
-    //Switches active direction for future balls
+    //Loads level given
     loadLevel: function (levelNum, levelMap) {
 
         //fix for 0 indexing
@@ -260,37 +278,37 @@ var G = {
         //make sure we let everything know we are in a level now
         G.inMenu = false;
 
-        //Set grid size
+        //Set and save grid size
         PS.gridSize(G.levelSizes[lvl][0], G.levelSizes[lvl][1]+1);
-        PS.color(PS.ALL, G.levelSizes[lvl][1], G.blankUnwritableGridColor);
-
-        G.activeLevelMap = levelMap;
-
-        //Reset everything
-        PS.borderColor(PS.ALL, PS.ALL, G.blankUnwritableGridColor);
-        PS.radius(PS.ALL, PS.ALL, 5);
-        G.levelSolution = {};
-
-        //reset the current player map to empty array filled with 0s
-        G.currentPlayerMap = new Array(G.levelSizes[lvl][1]).fill(0).map(() => new Array(G.levelSizes[lvl][0]).fill(0));
-
-
-        //init
-        PS.gridColor(0x4C5958);
-        PS.statusText("Click on a spot to guess!");
-        PS.statusColor(PS.COLOR_WHITE);
-        
-        if(levelNum === 5) {
-            PS.statusText("Hover boxes for more information!");
-        }
-
-
 
         var width = levelMap[0].length;
         G.currPuzzleW = width;
         var height = levelMap.length;
         G.currPuzzleH = height;
 
+        //Save the map given as the active level map
+        G.activeLevelMap = levelMap;
+
+        //Set default colors and status line
+        PS.color(PS.ALL, G.levelSizes[lvl][1], G.blankUnwritableGridColor);
+        PS.gridColor(0x4C5958);
+        PS.statusText("Click on a spot to guess!");
+        PS.statusColor(PS.COLOR_WHITE);
+
+        //Reset everything else
+        PS.borderColor(PS.ALL, PS.ALL, G.blankUnwritableGridColor);
+        PS.radius(PS.ALL, PS.ALL, 5);
+        G.levelSolution = {};
+
+        //reset the current player map to empty array (of the same size) filled with 0s
+        G.currentPlayerMap = new Array(G.levelSizes[lvl][1]).fill(0).map(() => new Array(G.levelSizes[lvl][0]).fill(0));
+
+        //If we are in loading the tutorial, display a different message
+        if(levelNum === 5) {
+            PS.statusText("Hover boxes for more information!");
+        }
+
+        //If we are NOT loading the tutorial, add a hint button
         if(levelNum !== 5) {
             //Add hint button if not in the tutorial level
             PS.glyph(width-1, height, "⁇");
@@ -299,16 +317,17 @@ var G = {
             PS.fade(width-1, height, 20);
         }
 
-
         //Add back button
         PS.glyph(0, height, 0x21A9);
         PS.glyphColor(0, height, G.buttonGlyphColor);
         PS.color(0, height, G.buttonNormalColor);
         PS.fade(0, height, 20);
 
-        //Set up grid:
+        //Set up starting grid:
         for(var x = 0; x < width; x++) {
             for(var y = 0; y < height; y++) {
+                //Go through all the array indices
+
                 if(G.isCharacterALetter(levelMap[y][x])) {
                     //If it is a letter, write it to the solution hashtable
                     var key = [x, y].join('|');
@@ -317,36 +336,35 @@ var G = {
                     //and set it to writable spot color
                     PS.color(x, y, G.blankGridColor);
 
-                    //If it is capitalized, we are providing a hint, so we draw the complete word
+                    //If it is capitalized, we are providing a hint, so we draw the letters
                     if(G.isCharacterUpper(levelMap[y][x])) {
-                        //levelMap[y][x] = levelMap[y][x].toLowerCase();
                         PS.glyphColor(x, y, G.correctColor);
                         PS.glyph(x, y, levelMap[y][x].toLowerCase());
+
+                        //save it to the player's map too
                         G.currentPlayerMap[y][x] = levelMap[y][x].toLowerCase();
                     }
 
                 }
                 else if(levelNum === 5 && levelMap[y][x] !== 0) {
-                    //If it is a letter, write it to the solution hashtable
+                    //If we are drawing the tutorial and encounter any symbol, it is drawn anyway
+
                     var key = [x, y].join('|');
                     G.levelSolution[key] = 'a';
 
-                    //and set it to writable spot color
                     PS.color(x, y, G.blankGridColor);
-
-                    //If in tutorial, just draw to the board whatever we have
                     PS.glyphColor(x, y, G.correctColor);
                     PS.glyph(x, y, levelMap[y][x]);
                 }
                 else {
+                    //If not a letter for a normal level, just make it a blank spot (colored differently)
                     PS.color(x, y, G.blankUnwritableGridColor);
                 }
-
             }
         }
 
+        //Add some additional details to the tutorial that can not be loaded automatically
         if(levelNum === 5) {
-            //Add some additional details to the tutorial
             PS.glyphColor(10, 8, G.halfWrongColor);
             PS.glyph(10, 8, "r");
             PS.glyphColor(11, 8, G.halfWrongColor);
@@ -365,20 +383,18 @@ var G = {
             PS.glyphColor(13, 10, G.correctColor);
             PS.glyph(13, 10, "d");
         }
-
     },
 
+    //Resets highlights for player guesses
     resetHighlights: function() {
-        var width = G.activeLevelMap[0].length;
-        var height = G.activeLevelMap.length;
-
         //Reset grid colors:
-        for(var x = 0; x < width; x++) {
-            for(var y = 0; y < height; y++) {
+        for(var x = 0; x < G.currPuzzleW; x++) {
+            for(var y = 0; y < G.currPuzzleH; y++) {
                 if(G.isCharacterALetter(G.activeLevelMap[y][x])) {
                     PS.color(x, y, G.blankGridColor);
                 }
                 else if(G.activeLevelMap === G.tutorial && G.activeLevelMap[y][x] !== 0) {
+                    //Ensures that symbols drawn in the tutorial are are given the correct bead color
                     PS.color(x, y, G.blankGridColor);
                 }
                 else {
@@ -390,32 +406,36 @@ var G = {
 
     //Highlights where the player's guess will be input
     highlightGuessLoc: function(x, y) {
+        //Resets highlights before adding new ones
         G.resetHighlights();
+
+        //Storage for what coordinates will need to be highlighted
         var coordsToHighlight = [];
 
         //Save direction before it is swapped
         G.currWordDir = G.currDirection;
 
-        //PS.debug(x + " " + y + " key: " + G.levelSolution[[x, y].join('|')])
-
-        //If it is a letter with a spot,
+        //If it is a bead with a letter spot (a writable location)
         if(G.levelSolution[[x, y].join('|')] != null) {
 
+            //Sets the current solution to the correct letter of the bead the player clicked on
             G.currWordSolution = [G.levelSolution[[x, y].join('|')]]
+
+            //adds this to what needs to be highlighted
             coordsToHighlight.push([x, y]);
 
-
+            //Now search in the direction that needs to be highlighted.
             if(G.currDirection == "H") {
                 //Look left and right, adding any beads with letters to the highlight and stopping at anything else
 
                 //Left
                 for(var l = x-1; l > -1; l--) {
-                    //If we have reached the extent in this direction, break out
+                    //If we have reached the extent in this direction- a null entry, break out
                     if(G.levelSolution[[l, y].join('|')] == null) {
                         break;
                     }
 
-                    //Add this letter to the current word solution and to the highlight coords
+                    //Add this letter to the current word solution (the front) and to the highlight coords
                     G.currWordSolution.unshift(G.levelSolution[[l, y].join('|')]);
                     coordsToHighlight.unshift([l,y]);
 
@@ -427,11 +447,12 @@ var G = {
                     if(G.levelSolution[[r, y].join('|')] == null) {
                         break;
                     }
-                    //Add this letter to the current word solution and to the highlight coords
+                    //Add this letter to the current word solution (the back) and to the highlight coords
                     G.currWordSolution.push(G.levelSolution[[r, y].join('|')]);
                     coordsToHighlight.push([r,y]);
                 }
 
+                //Play a noise
                 PS.audioPlay( "hori_switch", {fileTypes: ["wav"], path: "audio/", volume : 0.2} );
 
                 //Swap direction after we are done
@@ -447,7 +468,7 @@ var G = {
                         break;
                     }
 
-                    //Add this letter to the current word solution and to the highlight coords
+                    //Add this letter to the current word solution (the front) and to the highlight coords
                     G.currWordSolution.unshift(G.levelSolution[[x, d].join('|')]);
                     coordsToHighlight.unshift([x,d]);
 
@@ -459,16 +480,17 @@ var G = {
                     if(G.levelSolution[[x, u].join('|')] == null) {
                         break;
                     }
-                    //Add this letter to the current word solution and to the highlight coords
+                    //Add this letter to the current word solution (the back) and to the highlight coords
                     G.currWordSolution.push(G.levelSolution[[x, u].join('|')]);
                     coordsToHighlight.push([x,u]);
                 }
 
+                //Play a noise
                 PS.audioPlay( "vert_switch", {fileTypes: ["wav"], path: "audio/", volume : 0.2} );
+
                 //Swap direction
                 G.currDirection = "H";
             }
-
         }
 
         //Save the location of the first word, only if we are clicking on a valid word
@@ -482,18 +504,24 @@ var G = {
         }
 
         //Retry if it is one length- this means we tried to go in a direction for a word that is in the opposite direction
+        //Running it again will have it go the other direction and will work correctly
         if(coordsToHighlight.length == 1) {
             G.highlightGuessLoc(x,y);
         }
-
     },
 
-    //Is run after new player input
+    //This is run after new player input
     guess : function(text) {
+        //Ensures the guess is in lowercase
         text = text.toLowerCase();
+
+        //counts how many letters are correct in the guess
         var letterCorrect = 0;
 
-        //Reset the direction of highlighting so the user can click just click to guess again
+        //stores the correct length of the word being guessed
+        var correctLength = G.currWordSolution.length;
+
+        //Reset the direction of highlighting so the user can click just click to guess again (ease of access)
         if(G.currDirection === "H") {
             G.currDirection = "V";
         }
@@ -502,15 +530,16 @@ var G = {
         }
 
 
-        var correctLength = G.currWordSolution.length;
-        //Check word length
+
+        //Check word length. Return an error message if the player guessed something of a different length
         if(text.length !== correctLength) {
             PS.statusText("Incorrect length: should be " + correctLength + " letters long.");
+            //plays error sound
             PS.audioPlay( "errorGuess", {fileTypes: ["wav"], path: "audio/", volume : 0.2} );
             return;
         }
 
-        //TODO Check if valid word
+        //TODO Check if valid word - No "easy" solution found. Kept in code for future expansion
         if(false) {
             PS.statusText("Not a valid word: try again!");
             PS.audioPlay( "errorGuess", {fileTypes: ["wav"], path: "audio/", volume : 0.2} );
@@ -525,19 +554,19 @@ var G = {
             //Check the solution to see if it is in both the guess and correct word
             for(var s=0; s < correctLength; s++) {
                 if(char === G.currWordSolution[s]) {
-                    //If both letters are in the same spot, we have a correct match and we can break out
+                    //If both letters are in the same spot, we have a correct match and we can break out. Can't do better!
                     if(g === s) {
                         status = 1;
                         break;
                     }
                     else {
-                        //Else, the letter is somewhere in the word, but keep going to check for exact match
+                        //Else, the letter is somewhere in the word, but we still keep going to check for an exact match
                         status = 0;
                     }
                 }
             }
 
-            //Gets location of letter
+            //Gets x,y location of letter
             var x, y;
             if(G.currWordDir == "H") {
                 x = G.currWordStartCoord[0] + g;
@@ -558,71 +587,81 @@ var G = {
                     break;
                 case 1:
                     PS.glyphColor(x, y, G.correctColor);
-                    letterCorrect++;
+                    letterCorrect++; //increment correct letter counter
                     break;
             }
 
             //And the correct glyph
             PS.glyph(x, y, char);
+            //add to player map too
             G.currentPlayerMap[y][x] = char;
-
-
         }
 
+        //Checks if game is over
         if(G.isGameOver()) {
+            //If so, play victory sound and display message
             PS.statusText("Congratulations! You completed the puzzle!");
             PS.audioPlay( "victory", {fileTypes: ["wav"], path: "audio/", volume : 0.4} );
             return;
         }
 
+        //Player guessed word correctly
         if(letterCorrect === correctLength) {
+            //If so, play sound and display message
             PS.audioPlay( "correctGuess", {fileTypes: ["wav"], path: "audio/", volume : 0.2} );
             PS.statusText("Nice Job!");
         }
         else {
+            //Else, regular sound plays and the status line reviews the rules
             PS.audioPlay( "normalGuess", {fileTypes: ["wav"], path: "audio/", volume : 0.2} );
             PS.statusText("Green = ✓, Red = ✖, Yellow = Wrong Spot.");
         }
-
-
-
     },
 
+    //Provides the player with a hint - a randomly chosen letter that is "solved" for them
     hint : function() {
 
-        //var x = PS.random(G.currPuzzleW-2)+1;
-        //var y = PS.random(G.currPuzzleH-2)+1;
-
+        //Stores potential hint options
         var options = [];
+
         for(var x = 0; x < G.currPuzzleW; x++) {
             for (var y = 0; y < G.currPuzzleH; y++) {
                 if(G.activeLevelMap[y][x] !== 0) {
                     if(G.currentPlayerMap[y][x] !== G.activeLevelMap[y][x].toLowerCase()) {
+                        //Saves any letter that is not currently correct
                         options.push([x,y]);
                     }
                 }
             }
         }
 
-        //No options for hints
+        //No options for hints, so do nothing
         if(options.length === 0) {
             return;
         }
 
+        //Get a random number
         var hint = PS.random(options.length)-1;
 
+        //Grab that random hint
         var x = options[hint][0];
         var y = options[hint][1];
 
+        //draws the hint - just a randomly chosen correctly placed letter
         PS.glyphColor(x, y, G.correctColor);
         PS.glyph(x, y, G.activeLevelMap[y][x].toLowerCase());
         G.currentPlayerMap[y][x] = G.activeLevelMap[y][x].toLowerCase();
 
     },
 
+    //Timer tick
     tick : function() {
+        //increment tick
         G.tickCounter += 1;
+
+        //We are only concerned with the timer in the menu
         if(G.inMenu) {
+            //Every 100 ticks, we randomly change the color of the menu border
             if(G.tickCounter % 100 === 0) {
                 var rand_color = [PS.random(50), PS.random(50), PS.random(50)];
                 PS.color(0, PS.ALL, rand_color);
@@ -632,31 +671,29 @@ var G = {
             }
 
 
+            //Sprite animation:
+
             //Move border animation
-            if(G.borderAnimLoc[0] == 0 && G.borderAnimLoc[1] == 0) {
+            if(G.borderAnimLoc[0] === 0 && G.borderAnimLoc[1] === 0) {
                 G.borderAnimDir = [1, 0];
             }
-            else if(G.borderAnimLoc[0] == 8 && G.borderAnimLoc[1] == 0) {
+            else if(G.borderAnimLoc[0] === 8 && G.borderAnimLoc[1] === 0) {
                 G.borderAnimDir = [0, 1];
             }
-            else if(G.borderAnimLoc[0] == 8 && G.borderAnimLoc[1] == 9) {
+            else if(G.borderAnimLoc[0] === 8 && G.borderAnimLoc[1] === 9) {
                 G.borderAnimDir = [-1, 0];
             }
-            else if(G.borderAnimLoc[0] == 0 && G.borderAnimLoc[1] == 9) {
+            else if(G.borderAnimLoc[0] === 0 && G.borderAnimLoc[1] === 9) {
                 G.borderAnimDir = [0, -1];
             }
             //Update location and move it there
             G.borderAnimLoc[0] = G.borderAnimLoc[0]+G.borderAnimDir[0];
             G.borderAnimLoc[1] = G.borderAnimLoc[1]+G.borderAnimDir[1];
-
             PS.spriteMove(G.borderAnimSprite, G.borderAnimLoc[0], G.borderAnimLoc[1]);
         }
     }
 
-
-
 }
-
 
 
 /*
@@ -671,7 +708,7 @@ Any value returned is ignored.
 
 PS.init = function( system, options ) {
 
-    //Load audio if needed
+    //Load audio
     PS.audioLoad( "bgMusic", {fileTypes: ["mp3"], path: "audio/", loop : true, volume : 0.1} );
     PS.audioLoad( "correctGuess", {fileTypes: ["wav"], path: "audio/", volume : 0.2} );
     PS.audioLoad( "errorGuess", {fileTypes: ["wav"], path: "audio/", volume : 0.2} );
@@ -680,13 +717,11 @@ PS.init = function( system, options ) {
     PS.audioLoad( "vert_switch", {fileTypes: ["wav"], path: "audio/", volume : 0.2} );
     PS.audioLoad( "victory", {fileTypes: ["wav"], path: "audio/", volume : 0.2} );
 
-
-
-
     //Play music
     PS.audioPlay( "bgMusic", {fileTypes: ["mp3"], path: "audio/", loop : true, volume : 0.1} );
 
-    PS.timerStart( 5, G.tick );
+    //Start timer
+    PS.timerStart( 5, G.tick);
 
     //Loads the main menu
     G.loadMenu();
@@ -704,43 +739,10 @@ This function doesn't have to do anything. Any value returned is ignored.
 
 PS.touch = function( x, y, data, options ) {
 
-    //If we are not in the menu anymore
-    if(!G.inMenu) {
-        //clicked on hint
-        if(x === G.currPuzzleW-1 && y === G.currPuzzleH) {
-            G.hint();
-            return;
-        }
+    //If we in the menu
+    if(G.inMenu) {
 
-        //Clicked on main menu button
-        if(x === 0 && y === G.currPuzzleH) {
-            G.loadMenu();
-            return;
-        }
-
-
-        G.highlightGuessLoc(x, y);
-
-        if(G.activeLevelMap === G.tutorial) {
-            //No guessing allowed in tutorial
-            return;
-        }
-
-        if(G.levelSolution[[x, y].join('|')] == null) {
-            PS.statusText("Not a valid guess location, click elsewhere!");
-        }
-        else {
-            PS.statusText("Click on a word spot to guess!");
-            PS.statusInput("Guess Word ("+G.currWordSolution.length+"):", function(text) {
-                G.guess(text);
-            });
-        }
-
-
-    }
-
-    //If we are in the menu
-    else {
+        //Handle loading level depending on where the user touches
         if(x >= 2 && x <= 3 && y >= 2 && y <= 3) {
             G.loadLevel(1, G.level1Map);
         }
@@ -756,7 +758,41 @@ PS.touch = function( x, y, data, options ) {
         else if(x >= 2 && x <= 6 && y === 8) {
             G.loadLevel(5, G.tutorial);
         }
+    }
 
+    //If we are in a level
+    else {
+        //clicked on hint
+        if(x === G.currPuzzleW-1 && y === G.currPuzzleH) {
+            G.hint();
+            return;
+        }
+
+        //Clicked on main menu button
+        if(x === 0 && y === G.currPuzzleH) {
+            G.loadMenu();
+            return;
+        }
+
+        //Player has touched the playing field, so highlight their selection
+        G.highlightGuessLoc(x, y);
+
+        if(G.activeLevelMap === G.tutorial) {
+            //No guessing allowed in tutorial!
+            return;
+        }
+
+        //Handle guessing
+        if(G.levelSolution[[x, y].join('|')] == null) {
+            //Not on a word slot
+            PS.statusText("Not a valid guess location, click elsewhere!");
+        }
+        else {
+            PS.statusText("Click on a word spot to guess!");
+            PS.statusInput("Guess Word ("+G.currWordSolution.length+"):", function(text) {
+                G.guess(text);
+            });
+        }
 
     }
 
@@ -775,8 +811,6 @@ This function doesn't have to do anything. Any value returned is ignored.
 PS.release = function( x, y, data, options ) {
     // Uncomment the following code line to inspect x/y parameters:
 
-
-
     // Add code here for when the mouse button/touch is released over a bead.
 };
 
@@ -791,8 +825,10 @@ This function doesn't have to do anything. Any value returned is ignored.
 */
 
 PS.enter = function( x, y, data, options ) {
-    // Uncomment the following code line to inspect x/y parameters:
+
+    //In menu
     if(G.inMenu) {
+        //Set buttons to another color when hovering
         if(x >= 2 && x <= 3 && y >= 2 && y <= 3) {
             PS.color(2, 2, G.menulvlHoverColor);
             PS.color(3, 2, G.menulvlHoverColor);
@@ -826,6 +862,9 @@ PS.enter = function( x, y, data, options ) {
         }
     }
     else {
+        //In level
+
+        //Set buttons to another color when hovering and display a message
         if(x === G.currPuzzleW-1 && y === G.currPuzzleH) {
             PS.color(G.currPuzzleW-1, G.currPuzzleH, G.buttonHoverColor);
             PS.statusText("Click for a hint!");
@@ -836,6 +875,7 @@ PS.enter = function( x, y, data, options ) {
             PS.statusText("Click to go back to the main menu.");
         }
 
+        //Tutorial hovering messages
         if(G.activeLevelMap === G.tutorial) {
             if(x > 1 && y === 6) {
                 PS.statusText("Green → in the right location.");
@@ -855,10 +895,8 @@ PS.enter = function( x, y, data, options ) {
             else if(y === 0) {
                 PS.statusText("Touch boxes like these to guess the word.");
             }
-
         }
     }
-
 
     // Add code here for when the mouse cursor/touch enters a bead.
 };
@@ -874,9 +912,11 @@ This function doesn't have to do anything. Any value returned is ignored.
 */
 
 PS.exit = function( x, y, data, options ) {
-    // Uncomment the following code line to inspect x/y parameters:
 
+
+    //In menu
     if(G.inMenu) {
+        //reset buttons to original color when hovering
         if(x >= 2 && x <= 3 && y >= 2 && y <= 3) {
             PS.color(2, 2, G.menulvl1BGColor);
             PS.color(3, 2, G.menulvl1BGColor);
@@ -910,6 +950,8 @@ PS.exit = function( x, y, data, options ) {
         }
     }
     else {
+        //In level
+        //reset buttons to original color when hovering and reset message
         if(x === G.currPuzzleW-1 && y === G.currPuzzleH) {
             PS.color(G.currPuzzleW-1, G.currPuzzleH, G.buttonNormalColor);
             PS.statusText(G.defaultText);
@@ -919,7 +961,6 @@ PS.exit = function( x, y, data, options ) {
             PS.color(0, G.currPuzzleH, G.buttonNormalColor);
             PS.statusText(G.defaultText);
         }
-
     }
 
     // Add code here for when the mouse cursor/touch exits a bead.
