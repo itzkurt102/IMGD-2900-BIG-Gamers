@@ -884,7 +884,7 @@ PS.enter = function( x, y, data, options ) {
                 PS.statusText("Each letter's color means something.");
             }
             else if(x > 1 && y === 8) {
-                PS.statusText("Yellow → wrong location, but in the word.");
+                PS.statusText("Orange → wrong location, but in the word.");
             }
             else if(x > 1 && y === 10) {
                 PS.statusText("Red → letter is not in the word.");
