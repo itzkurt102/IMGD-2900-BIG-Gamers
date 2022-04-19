@@ -349,7 +349,7 @@ var G = {
                         else if(G.lumenCounter > 0 && G.lumenCounter < 4) {
                             G.currentStatusLine = "Good Job. Thanks for playing!";
                         }
-                        else if(G.lumenCounter > 5) {
+                        else if(G.lumenCounter === 5) {
                             G.currentStatusLine = "Great Job! Congrats collector!";
                         }
 
