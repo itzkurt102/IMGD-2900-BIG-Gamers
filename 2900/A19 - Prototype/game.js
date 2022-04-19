@@ -352,6 +352,9 @@ var G = {
                         else if(G.lumenCounter === 5) {
                             G.currentStatusLine = "Great Job! Congrats collector!";
                         }
+                        else if(G.lumenCounter > 5) {
+                            G.currentStatusLine = "Hmm...Maybe we should fix that...";
+                        }
 
                         G.newStatus();
                         G.loadMap(map);
