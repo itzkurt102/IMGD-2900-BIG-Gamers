@@ -40,7 +40,7 @@ If you don't use JSHint (or are using it with a configuration file), you can saf
 
 var G = {
 
-    WALL_COLOR: PS.COLOR_GRAY,
+    WALL_COLOR: PS.COLOR_BLACK,
     FLOOR_COLOR: PS.COLOR_GRAY_LIGHT,
     PLAYER_COLOR: PS.COLOR_CYAN,
     ENTRANCE_COLOR: PS.COLOR_WHITE,
@@ -49,8 +49,13 @@ var G = {
     playerPos: [0,0],
     activeLevel: 0,
     activeSubLevel: 0,
+    spotLighted: [],
+    lumenCounter: 0,
+    currentStatusLine: "",
 
     loadMap: function(map) {
+        PS.data(PS.ALL, PS.ALL, 0);
+
         for(var x = 0; x < G.DIMENSION; x++) {
             for (var y = 0; y < G.DIMENSION; y++) {
                 //Go through the whole map
@@ -87,11 +92,13 @@ var G = {
                         //ENTRANCE
                         PS.color(x, y, G.ENTRANCE_COLOR);
                         PS.data(x, y, 3);
+                        G.spotLighted.push([x,y]);
                         break;
                     case 4:
                         //LUMEN
                         PS.color(x, y, PS.COLOR_BLUE);
                         PS.data(x, y, 4);
+                        G.spotLighted.push([x,y]);
                         break;
                 }
             }
@@ -119,7 +126,7 @@ var G = {
                                     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                                     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                                     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                                    [2,1,1,1,1,1,1,1,1,1,1,1,1,1,3],
+                                    [0,2,1,1,1,1,1,1,1,1,1,1,1,3,0],
                                     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                                     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                                     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -128,15 +135,16 @@ var G = {
                                     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                                     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]];
 
+                        PS.statusText("WASD/Arrow Keys to move.");
                         G.loadMap(map);
                         G.activeLevel = 1;
                         G.activeSubLevel = 0;
-
                         break;
                     case 1:
-
+                        //No sublevels
                         break;
                     case 2:
+                        //No sublevels
                         break;
                 }
                 break;
@@ -145,36 +153,49 @@ var G = {
                 switch(subLevel) {
                     case 0:
                         var map = [
-                            [0,0,0,0,0,0,0,3,0,0,0,0,0,0,0],
-                            [0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
-                            [0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
-                            [0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
-                            [0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
-                            [0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
-                            [0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
-                            [2,1,1,1,1,1,1,1,1,1,1,1,1,1,3],
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                            [0,1,1,1,1,1,1,1,1,1,1,1,1,3,0],
+                            [0,0,0,0,0,0,0,0,0,0,0,1,0,0,0],
+                            [0,0,0,0,0,0,0,0,0,1,1,1,0,0,0],
+                            [0,0,0,0,0,0,0,0,0,1,0,0,0,0,0],
+                            [0,0,0,0,0,0,0,0,0,1,1,1,0,0,0],
+                            [0,0,0,0,0,0,0,0,0,0,0,1,0,0,0],
+                            [0,0,0,0,0,0,0,0,0,0,0,4,0,0,0],
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]];
 
+                        PS.statusText("Maybe that does something...");
+                        G.currentStatusLine =  "Maybe that does something...";
                         G.loadMap(map);
                         G.activeLevel = 2;
                         G.activeSubLevel = 0;
                         break;
                     case 1:
+                        //No sublevels
+                        break;
+                    case 2:
+                        //No sublevels
+                        break;
+                }
+                break;
+
+            case 3:
+                switch(subLevel) {
+                    case 0:
                         var map = [
-                            [0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
-                            [0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
-                            [0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
-                            [0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
-                            [0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
-                            [0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
-                            [0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
-                            [2,1,1,1,1,1,1,1,1,1,1,1,1,1,3],
+                            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                            [0,0,0,0,0,0,3,0,0,0,0,0,0,0,0],
+                            [0,0,0,0,0,0,1,0,0,0,0,0,0,0,0],
+                            [0,0,0,0,0,0,1,0,0,0,0,0,0,0,0],
+                            [0,0,0,0,0,0,1,0,0,0,0,0,0,0,0],
+                            [0,0,0,0,0,0,1,0,0,0,0,0,0,0,0],
+                            [0,0,0,0,0,0,1,0,0,0,0,0,0,0,0],
+                            [0,1,1,1,1,1,1,1,1,1,1,1,1,3,0],
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -183,11 +204,38 @@ var G = {
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]];
 
+                        G.currentStatusLine = "Hmm...I wonder where that goes...";
+                        G.newStatus();
                         G.loadMap(map);
-                        G.activeLevel = 2;
+                        G.activeLevel = 3;
+                        G.activeSubLevel = 0;
+                        break;
+                    case 1:
+                        var map = [
+                            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                            [0,1,1,1,1,1,1,1,1,1,0,1,1,4,0],
+                            [0,1,0,0,0,0,0,0,0,1,1,1,0,0,0],
+                            [0,1,1,1,0,1,1,1,0,0,0,0,0,0,0],
+                            [0,1,0,1,1,1,0,1,1,1,1,1,1,0,0],
+                            [0,0,0,0,0,0,0,0,0,0,1,0,1,0,0],
+                            [0,1,1,1,1,1,1,1,1,0,1,0,1,0,0],
+                            [0,1,0,0,0,0,0,0,1,0,1,0,1,1,0],
+                            [0,1,0,1,1,1,1,0,1,0,1,0,0,1,0],
+                            [0,1,0,1,0,0,1,0,1,0,1,1,0,1,0],
+                            [0,1,0,1,1,0,1,0,1,0,0,1,0,1,0],
+                            [0,1,0,0,1,0,1,0,1,1,1,1,0,1,0],
+                            [0,1,0,0,1,0,1,0,1,0,0,0,0,1,0],
+                            [0,1,1,1,1,0,1,0,1,1,1,1,1,1,0],
+                            [0,0,0,0,0,0,3,0,0,0,0,0,0,0,0]];
+
+                        G.currentStatusLine = "Well this is different...";
+                        G.newStatus();
+                        G.loadMap(map);
+                        G.activeLevel = 3;
                         G.activeSubLevel = 1;
                         break;
                     case 2:
+                        //No sublevels
                         break;
                 }
                 break;
@@ -225,39 +273,125 @@ var G = {
                     if(newY === 7) {
                         //If y is in the middle of the level, we know it is going to next level
                         //So we need to clean up player sprite and load next level
-                        PS.spriteDelete(G.playerSprite);
+                        newX = newX-12;
                         G.loadLevel(G.activeLevel + 1, 0);
-
+                        G.playerPos = [newX, newY];
+                        PS.spriteMove(G.playerSprite, newX, newY);
                     }
                     else if(newY < 7) {
                         //If it is above the middle, it is going to sublevel 1
                         //So we need to clean up player sprite and load next sublevel
-                        PS.spriteDelete(G.playerSprite);
+                        newY = newY+12;
                         G.loadLevel(G.activeLevel, 1);
+                        G.playerPos = [newX, newY];
+                        PS.spriteMove(G.playerSprite, newX, newY);
                     }
                     else if(newY > 7) {
                         //If it is below the middle, it is going to sublevel 2
                         //So we need to clean up player sprite and load next sublevel
-                        PS.spriteDelete(G.playerSprite);
+                        newY = newY-12;
                         G.loadLevel(G.activeLevel, 2);
+                        G.playerPos = [newX, newY];
+                        PS.spriteMove(G.playerSprite, newX, newY);
                     }
                 }
                 else {
                     //If NOT in the main "hub" level, all entrances lead back to main level
                     //So we need to clean up player sprite and load main level
-                    PS.spriteDelete(G.playerSprite);
-                    G.loadLevel(G.activeLevel, 0);
+                    if(G.activeSubLevel === 1) {
+                        newY = newY-12;
+                        G.loadLevel(G.activeLevel, 0);
+                        G.playerPos = [newX, newY];
+                        PS.spriteMove(G.playerSprite, newX, newY);
+                    }
+                    else if(G.activeSubLevel === 2) {
+                        newY = newY+12;
+                        G.loadLevel(G.activeLevel, 0);
+                        G.playerPos = [newX, newY];
+                        PS.spriteMove(G.playerSprite, newX, newY);
+                    }
+
                 }
 
-                break;
+                //If we are loading a new level, we just return as to not break anything else
+                return;
 
             case 4:
-                //LUMEN - Need to handle properly
+                //LUMEN - Handle pickup and move to location
+                G.lumenPickup(newX, newY);
+                G.playerPos = [newX, newY];
+                PS.spriteMove(G.playerSprite, newX, newY);
                 break;
         }
 
+        //Handle lighting:
+        if(G.activeLevel === 4 || G.activeLevel === 5) {
+            G.spotLight(newX, newY);
+        }
+        else if(G.activeLevel === 6 || G.activeLevel === 7) {
+            //Different lighting
+        }
+        else if(G.activeLevel === 8 || G.activeLevel === 9) {
+            //Different lighting
+        }
 
+    },
 
+    spotLight: function(centerX, centerY) {
+        PS.alpha(PS.ALL, PS.ALL, 0);
+
+        //Spotlight the 9x9 space with x, y at center
+        for(var x = centerX-1; x < centerX+2; x++) {
+            for (var y = centerY-1; y < centerY+2; y++) {
+                //Check if out of bounds
+                if(x < 0 || x > G.DIMENSION-1 || y < 0 || y > G.DIMENSION-1) {
+                    //If out of bounds, we don't touch
+                    continue;
+                }
+
+                //If in bounds, light up the space
+                PS.alpha(x, y, 255);
+            }
+        }
+
+        //Spotlight everything else that needs to be spotlighted
+        for(var s = 0; s < G.spotLighted.length; s++) {
+            centerX = G.spotLighted[s][0];
+            centerY = G.spotLighted[s][1];
+            for(var x = centerX-1; x < centerX+2; x++) {
+                for (var y = centerY-1; y < centerY+2; y++) {
+                    //Check if out of bounds
+                    if(x < 0 || x > G.DIMENSION-1 || y < 0 || y > G.DIMENSION-1) {
+                        //If out of bounds, we don't touch
+                        continue;
+                    }
+
+                    //If in bounds, light up the space
+                    PS.alpha(x, y, 255);
+                }
+            }
+        }
+    },
+
+    lumenPickup: function(x, y) {
+        //Set back to normal floor bead
+        PS.color(x, y, G.FLOOR_COLOR);
+        PS.data(x, y, 1);
+
+        //If first lumen, set to special status line
+        if(G.lumenCounter === 0) {
+            G.currentStatusLine = "Huh...well that's new";
+        }
+
+        G.lumenCounter++;
+
+        G.newStatus();
+    },
+
+    //Automatically updates status with the lumen count
+    newStatus: function() {
+        var newStatus = "[" + G.lumenCounter + "/5] " + G.currentStatusLine;
+        PS.statusText(newStatus);
     }
 
 }
@@ -275,8 +409,10 @@ Any value returned is ignored.
 
 PS.init = function( system, options ) {
 	PS.gridSize(15, 15);
+    PS.border(PS.ALL, PS.ALL, 0);
 	PS.statusText( "Tunnel Vision" );
-    PS.gridColor(G.WALL_COLOR);
+    PS.statusColor(PS.COLOR_WHITE);
+    PS.gridColor(PS.COLOR_GRAY);
     G.loadLevel(1, 0);
 };
 
