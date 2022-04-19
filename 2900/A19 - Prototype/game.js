@@ -398,6 +398,7 @@ var G = {
 
             case 3:
                 //ENTRANCE - Need to move to new level
+                PS.audioPlay("fx_powerup5");
 
                 if(G.activeSubLevel === 0) {
                     //If in the main "hub" level, entrances follow these rules:
@@ -511,6 +512,8 @@ var G = {
         PS.scale(x, y, PS.DEFAULT);
         PS.bgAlpha(x, y, 0);
         PS.data(x, y, 1);
+        PS.audioPlay("fx_coin2");
+
 
 
         //If first lumen, set to special status line
@@ -548,6 +551,11 @@ PS.init = function( system, options ) {
 	PS.statusText( "Tunnel Vision" );
     PS.statusColor(PS.COLOR_WHITE);
     PS.gridColor(PS.COLOR_GRAY);
+
+    //Load audio
+    PS.audioLoad("fx_coin2");
+    PS.audioLoad("fx_powerup5");
+
     G.loadLevel(1, 0);
 };
 
