@@ -59,6 +59,8 @@ var G = {
     levelSpotlighted: [],
     timerActive: false,
     timer: "",
+    moveX: 0,
+    moveY: 0,
 
 
     loadMap: function(map) {
@@ -607,6 +609,13 @@ var G = {
         PS.fade(PS.ALL, PS.ALL, PS.DEFAULT);
         G.timerActive = false;
         PS.timerStop(G.timer);
+    },
+
+    moveTick: function() {
+        //Only move if the lumen is not transforming and the player is actually moving
+        if(!G.timerActive && (G.moveX !== 0 || G.moveY !== 0)) {
+            G.movePlayer(G.moveX, G.moveY);
+        }
     }
 
 }
@@ -662,6 +671,7 @@ PS.init = function( system, options ) {
     PS.audioLoad( "color-transform", {fileTypes: ["wav"], path: "audio/", volume : 0.5} );
     PS.audioLoad( "lumen-pickup", {fileTypes: ["wav"], path: "audio/", volume : 0.5} );
     G.loadLevel(1, 0);
+    PS.timerStart(5, G.moveTick);
 };
 
 /*
@@ -675,42 +685,34 @@ This function doesn't have to do anything. Any value returned is ignored.
 */
 
 PS.keyDown = function( key, shift, ctrl, options ) {
-    if(!G.timerActive) {
-        switch(key) {
 
-            case 119:
-                //W
-                G.movePlayer(0, -1);
-                break;
-            case PS.KEY_ARROW_UP:
-                G.movePlayer(0, -1);
-                break;
+    switch(key) {
 
-            case 97:
-                //A
-                G.movePlayer(-1, 0);
-                break;
-            case PS.KEY_ARROW_LEFT:
-                G.movePlayer(-1, 0);
-                break;
+        case 119:
+            //W
+        case PS.KEY_ARROW_UP:
+            G.moveY = -1;
+            break;
 
-            case 115:
-                //S
-                G.movePlayer(0, 1);
-                break;
-            case PS.KEY_ARROW_DOWN:
-                G.movePlayer(0, 1);
-                break;
+        case 97:
+            //A
+        case PS.KEY_ARROW_LEFT:
+            G.moveX = -1;
+            break;
 
-            case 100:
-                //D
-                G.movePlayer(1, 0);
-                break;
-            case PS.KEY_ARROW_RIGHT:
-                G.movePlayer(1, 0);
-                break;
-        }
+        case 115:
+            //S
+        case PS.KEY_ARROW_DOWN:
+            G.moveY = 1;
+            break;
+
+        case 100:
+            //D
+        case PS.KEY_ARROW_RIGHT:
+            G.moveX = 1;
+            break;
     }
+
 };
 
 /*
@@ -724,11 +726,34 @@ This function doesn't have to do anything. Any value returned is ignored.
 */
 
 PS.keyUp = function( key, shift, ctrl, options ) {
-	// Uncomment the following code line to inspect first three parameters:
 
-	// PS.debug( "PS.keyUp(): key=" + key + ", shift=" + shift + ", ctrl=" + ctrl + "\n" );
+    switch(key) {
 
-	// Add code here for when a key is released.
+        case 119:
+        //W
+        case PS.KEY_ARROW_UP:
+            G.moveY = 0;
+            break;
+
+        case 97:
+        //A
+        case PS.KEY_ARROW_LEFT:
+            G.moveX = 0;
+            break;
+
+        case 115:
+        //S
+        case PS.KEY_ARROW_DOWN:
+            G.moveY = 0;
+            break;
+
+        case 100:
+        //D
+        case PS.KEY_ARROW_RIGHT:
+            G.moveX = 0;
+            break;
+    }
+
 };
 
 PS.input = function( sensors, options ) {
