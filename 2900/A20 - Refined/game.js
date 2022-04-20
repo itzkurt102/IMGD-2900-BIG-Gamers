@@ -44,6 +44,8 @@ var G = {
     FLOOR_COLOR: PS.COLOR_GRAY_LIGHT,
     PLAYER_COLOR: PS.COLOR_CYAN,
     ENTRANCE_COLOR: PS.COLOR_GREEN,
+    COLORED_WALL_COLOR: PS.COLOR_BLUE,
+    COLORED_FLOOR_COLOR: PS.COLOR_RED,
     DIMENSION: 15,
     playerSprite: "",
     playerPos: [0,0],
@@ -54,6 +56,9 @@ var G = {
     lumensFound: {},
     currentStatusLine: "",
     levelColored: [],
+    levelSpotlighted: [],
+    timerActive: false,
+    timer: "",
 
 
     loadMap: function(map) {
@@ -62,7 +67,6 @@ var G = {
         PS.scale(PS.ALL, PS.ALL, PS.DEFAULT);
         PS.bgColor(PS.ALL, PS.ALL, PS.DEFAULT);
         PS.bgAlpha(PS.ALL, PS.ALL, PS.DEFAULT);
-        PS.fade(PS.ALL, PS.ALL, PS.DEFAULT);
         G.spotLighted = [];
 
         for(var x = 0; x < G.DIMENSION; x++) {
@@ -71,12 +75,22 @@ var G = {
                 switch(map[y][x]) {
                     case 0:
                         //WALL
-                        PS.color(x, y, G.WALL_COLOR);
+                        if(G.levelColored[G.activeLevel][G.activeSubLevel]) {
+                            PS.color(x, y, G.COLORED_WALL_COLOR);
+                        }
+                        else {
+                            PS.color(x, y, G.WALL_COLOR);
+                        }
                         break;
 
                     case 1:
                         //FLOOR
-                        PS.color(x, y, G.FLOOR_COLOR);
+                        if(G.levelColored[G.activeLevel][G.activeSubLevel]) {
+                            PS.color(x, y, G.COLORED_FLOOR_COLOR);
+                        }
+                        else {
+                            PS.color(x, y, G.FLOOR_COLOR);
+                        }
                         PS.data(x, y, 1);
                         break;
                     case 2:
@@ -96,7 +110,15 @@ var G = {
                             G.lumensFound[map[y][x]] = 0;
                         }
                         else if(G.lumensFound[map[y][x]] === 1) {
-                            //This means it was already found, so we want to not load it back in
+                            //This means it was already found, so we want to not load it back in, we treat it like floor
+                            //FLOOR
+                            if(G.levelColored[G.activeLevel][G.activeSubLevel]) {
+                                PS.color(x, y, G.COLORED_FLOOR_COLOR);
+                            }
+                            else {
+                                PS.color(x, y, G.FLOOR_COLOR);
+                            }
+                            PS.data(x, y, 1);
                             break;
                         }
 
@@ -104,7 +126,12 @@ var G = {
                         PS.data(x, y, map[y][x]);
                         PS.radius(x, y, 50);
                         PS.scale(x, y, 50);
-                        PS.bgColor(x, y, G.FLOOR_COLOR);
+                        if(G.levelColored[G.activeLevel][G.activeSubLevel]) {
+                            PS.bgColor(x, y, G.COLORED_FLOOR_COLOR);
+                        }
+                        else {
+                            PS.bgColor(x, y, G.FLOOR_COLOR);
+                        }
                         PS.bgAlpha(x, y, 255);
                         G.spotLighted.push([x,y]);
                         break;
@@ -144,9 +171,9 @@ var G = {
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]];
 
                         PS.statusText("WASD/Arrow Keys to move.");
-                        G.loadMap(map);
                         G.activeLevel = 1;
                         G.activeSubLevel = 0;
+                        G.loadMap(map);
                         break;
                     case 1:
                         //No sublevels
@@ -179,9 +206,9 @@ var G = {
 
                         PS.statusText("Maybe that does something...");
                         G.currentStatusLine =  "Maybe that does something...";
-                        G.loadMap(map);
                         G.activeLevel = 2;
                         G.activeSubLevel = 0;
+                        G.loadMap(map);
                         break;
                     case 1:
                         //No sublevels
@@ -214,9 +241,9 @@ var G = {
 
                         G.currentStatusLine = "Hmm...I wonder where that goes...";
                         G.newStatus();
-                        G.loadMap(map);
                         G.activeLevel = 3;
                         G.activeSubLevel = 0;
+                        G.loadMap(map);
                         break;
                     case 1:
                         var map = [
@@ -238,9 +265,9 @@ var G = {
 
                         G.currentStatusLine = "Well this is different...";
                         G.newStatus();
-                        G.loadMap(map);
                         G.activeLevel = 3;
                         G.activeSubLevel = 1;
+                        G.loadMap(map);
                         break;
                     case 2:
                         //No sublevels
@@ -260,9 +287,9 @@ var G = {
                             [0,0,0,0,1,0,0,0,0,0,0,0,0,0,0],
                             [0,0,0,0,1,0,0,0,0,0,0,0,0,0,0],
                             [0,3,1,1,1,1,1,1,1,1,1,1,1,3,0],
-                            [0,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                            [0,1,1,0,0,0,0,0,0,0,0,0,0,0,0],
-                            [0,0,1,1,0,0,0,0,0,0,0,0,0,0,0],
+                            [0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],
+                            [0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],
+                            [0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],
                             [0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],
                             [0,1,1,1,0,0,0,0,0,0,0,0,0,0,0],
                             [0,3,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -270,9 +297,9 @@ var G = {
 
                         G.currentStatusLine = "Uhh...who turned out the lights?";
                         G.newStatus();
-                        G.loadMap(map);
                         G.activeLevel = 4;
                         G.activeSubLevel = 0;
+                        G.loadMap(map);
                         break;
                     case 1:
                         var map = [
@@ -292,9 +319,9 @@ var G = {
                             [1,1,1,1,1,1,1,1,6,0,1,0,1,0,1],
                             [0,0,0,0,0,0,0,0,0,0,1,1,1,0,3]];
 
-                        G.loadMap(map);
                         G.activeLevel = 4;
                         G.activeSubLevel = 1;
+                        G.loadMap(map);
                         break;
                     case 2:
                         var map = [
@@ -314,9 +341,9 @@ var G = {
                             [0,1,1,1,1,1,1,1,1,1,0,8,1,1,0],
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]];
 
-                        G.loadMap(map);
                         G.activeLevel = 4;
                         G.activeSubLevel = 2;
+                        G.loadMap(map);
                         break;
                 }
                 break;
@@ -355,9 +382,9 @@ var G = {
                         }
 
                         G.newStatus();
-                        G.loadMap(map);
                         G.activeLevel = 5;
                         G.activeSubLevel = 0;
+                        G.loadMap(map);
                         break;
                     case 1:
 
@@ -386,6 +413,7 @@ var G = {
         switch(PS.data(newX, newY)) {
             case 0:
                 //WALL - Can't move!
+                PS.audioPlay( "wall-walk", {fileTypes: ["wav"], path: "audio/", volume : 0.5} );
                 return;
 
             case 1:
@@ -396,21 +424,24 @@ var G = {
 
             case 3:
                 //ENTRANCE - Need to move to new level
-                PS.audioPlay("fx_powerup5");
+
 
                 if(G.activeSubLevel === 0) {
                     //If in the main "hub" level, entrances follow these rules:
+
                     if(newY === 7) {
                         //If y is in the middle of the level, we know it is going to next/previous level
 
                         if(newX > 7) {
                             //If we are going to the next level
+                            PS.audioPlay( "warp-in", {fileTypes: ["wav"], path: "audio/", volume : 1.0} );
                             newX = newX-11;
                             G.loadLevel(G.activeLevel + 1, 0);
                             G.playerPos = [newX, newY];
                             PS.spriteMove(G.playerSprite, newX, newY);
                         }
                         else if(newX < 7) {
+                            PS.audioPlay( "warp-out", {fileTypes: ["wav"], path: "audio/", volume : 1.0} );
                             //If we are going to the previous level
                             newX = newX+11;
                             G.loadLevel(G.activeLevel - 1, 0);
@@ -437,6 +468,7 @@ var G = {
                     }
                 }
                 else {
+                    PS.audioPlay( "warp-out", {fileTypes: ["wav"], path: "audio/", volume : 1.0} );
                     //If NOT in the main "hub" level, all entrances lead back to main level
                     //So we need to clean up player sprite and load main level
                     if(G.activeSubLevel === 1) {
@@ -459,14 +491,14 @@ var G = {
 
             default:
                 //LUMEN - Handle pickup and move to location
-                G.lumenPickup(newX, newY);
                 G.playerPos = [newX, newY];
                 PS.spriteMove(G.playerSprite, newX, newY);
+                G.lumenPickup(newX, newY);
                 break;
         }
 
         //Handle lighting:
-        if(G.activeLevel === 4) {
+        if(G.levelSpotlighted[G.activeLevel][G.activeSubLevel]) {
             G.spotLight(newX, newY);
         }
         else if(G.activeLevel === 6 || G.activeLevel === 7) {
@@ -518,12 +550,17 @@ var G = {
         //Set back to normal floor bead
         var lumenID = PS.data(x, y);
 
-        PS.color(x, y, G.FLOOR_COLOR);
+        if(G.levelColored[G.activeLevel][G.activeSubLevel]) {
+            PS.color(x, y, G.COLORED_FLOOR_COLOR);
+        }
+        else {
+            PS.color(x, y, G.FLOOR_COLOR);
+        }
         PS.radius(x, y, PS.DEFAULT);
         PS.scale(x, y, PS.DEFAULT);
         PS.bgAlpha(x, y, 0);
         PS.data(x, y, 1);
-        PS.audioPlay("fx_coin2");
+
 
 
 
@@ -536,12 +573,40 @@ var G = {
         G.lumensFound[lumenID] = 1;
 
         G.newStatus();
+
+        PS.audioPlay( "lumen-pickup", {fileTypes: ["wav"], path: "audio/", volume : 0.5} );
+        //Check to make sure we didnt do it before for this level
+        if(G.levelColored[G.activeLevel][G.activeSubLevel]) {
+            //If we already dealt with the color changing, just end here
+            return;
+        }
+
+        PS.audioPlay( "color-transform", {fileTypes: ["wav"], path: "audio/", volume : 1.0} );
+        G.levelColored[G.activeLevel][G.activeSubLevel] = true;
+
+        PS.fade(PS.ALL, PS.ALL, 100);
+        G.loadLevel(G.activeLevel, G.activeSubLevel);
+
+        if(G.levelSpotlighted[G.activeLevel][G.activeSubLevel]) {
+            PS.alpha(PS.ALL, PS.ALL, PS.DEFAULT);
+            G.levelSpotlighted[G.activeLevel][G.activeSubLevel] = false;
+        }
+
+        G.timerActive = true;
+        G.timer = PS.timerStart(101, G.tick);
+
     },
 
     //Automatically updates status with the lumen count
     newStatus: function() {
         var newStatus = "[" + G.lumenCounter + "/5] " + G.currentStatusLine;
         PS.statusText(newStatus);
+    },
+
+    tick: function() {
+        PS.fade(PS.ALL, PS.ALL, PS.DEFAULT);
+        G.timerActive = false;
+        PS.timerStop(G.timer);
     }
 
 }
@@ -572,7 +637,7 @@ PS.init = function( system, options ) {
     var newSprite = PS.spriteSolid(1, 1);
 
     //Set sprite properties
-    PS.spritePlane(newSprite, 1);
+    PS.spritePlane(newSprite, 4);
     PS.spriteSolidColor(newSprite, G.PLAYER_COLOR);
     PS.spriteMove(newSprite, 1, 7);
 
@@ -587,8 +652,15 @@ PS.init = function( system, options ) {
     //Initialize colorLevel array
     for(var i = 0; i < 6; i++) {
         G.levelColored[i] = [false, false, false];
+        G.levelSpotlighted[i] = [false, false, false];
     }
+    G.levelSpotlighted[4] = [true, true, true];
 
+    //Load Audio
+    PS.audioLoad( "warp-in", {fileTypes: ["wav"], path: "audio/", volume : 0.5} );
+    PS.audioLoad( "warp-out", {fileTypes: ["wav"], path: "audio/", volume : 0.5} );
+    PS.audioLoad( "color-transform", {fileTypes: ["wav"], path: "audio/", volume : 0.5} );
+    PS.audioLoad( "lumen-pickup", {fileTypes: ["wav"], path: "audio/", volume : 0.5} );
     G.loadLevel(1, 0);
 };
 
@@ -603,39 +675,41 @@ This function doesn't have to do anything. Any value returned is ignored.
 */
 
 PS.keyDown = function( key, shift, ctrl, options ) {
+    if(!G.timerActive) {
+        switch(key) {
 
-    switch(key) {
-        case 119:
-            //W
-            G.movePlayer(0, -1);
-            break;
-        case PS.KEY_ARROW_UP:
-            G.movePlayer(0, -1);
-            break;
+            case 119:
+                //W
+                G.movePlayer(0, -1);
+                break;
+            case PS.KEY_ARROW_UP:
+                G.movePlayer(0, -1);
+                break;
 
-        case 97:
-            //A
-            G.movePlayer(-1, 0);
-            break;
-        case PS.KEY_ARROW_LEFT:
-            G.movePlayer(-1, 0);
-            break;
+            case 97:
+                //A
+                G.movePlayer(-1, 0);
+                break;
+            case PS.KEY_ARROW_LEFT:
+                G.movePlayer(-1, 0);
+                break;
 
-        case 115:
-            //S
-            G.movePlayer(0, 1);
-            break;
-        case PS.KEY_ARROW_DOWN:
-            G.movePlayer(0, 1);
-            break;
+            case 115:
+                //S
+                G.movePlayer(0, 1);
+                break;
+            case PS.KEY_ARROW_DOWN:
+                G.movePlayer(0, 1);
+                break;
 
-        case 100:
-            //D
-            G.movePlayer(1, 0);
-            break;
-        case PS.KEY_ARROW_RIGHT:
-            G.movePlayer(1, 0);
-            break;
+            case 100:
+                //D
+                G.movePlayer(1, 0);
+                break;
+            case PS.KEY_ARROW_RIGHT:
+                G.movePlayer(1, 0);
+                break;
+        }
     }
 };
 
