@@ -51,9 +51,7 @@ var G = {
     activeSubLevel: 0,
     spotLighted: [],
     lumenCounter: 0,
-    lumensFound: {},
     currentStatusLine: "",
-
 
     loadMap: function(map) {
         PS.data(PS.ALL, PS.ALL, 0);
@@ -79,6 +77,21 @@ var G = {
                         break;
                     case 2:
                         //PLAYER
+                        //Makes a sprite that will be the player sprite
+                        var newSprite = PS.spriteSolid(1, 1);
+
+                        //Set sprite properties
+                        PS.spritePlane(newSprite, 1);
+                        PS.spriteSolidColor(newSprite, G.PLAYER_COLOR);
+                        PS.spriteMove(newSprite, x, y);
+
+                        //Save information
+                        G.playerSprite = newSprite;
+                        G.playerPos = [x, y];
+
+                        //Set the tile to a normal floor tile since the sprite is on top
+                        PS.color(x, y, G.FLOOR_COLOR);
+                        PS.data(x, y, 1);
                         break;
                     case 3:
                         //ENTRANCE
@@ -86,20 +99,11 @@ var G = {
                         PS.data(x, y, 3);
                         G.spotLighted.push([x,y]);
                         break;
-                    default:
+                    case 4:
                         //LUMEN
 
-                        if(G.lumensFound[map[y][x]] === null) {
-                            //This means it is first time being loaded
-                            G.lumensFound[map[y][x]] = 0;
-                        }
-                        else if(G.lumensFound[map[y][x]] === 1) {
-                            //This means it was already found, so we want to not load it back in
-                            break;
-                        }
-
                         PS.color(x, y, PS.COLOR_BLUE);
-                        PS.data(x, y, map[y][x]);
+                        PS.data(x, y, 4);
                         PS.radius(x, y, 50);
                         PS.scale(x, y, 50);
                         PS.bgColor(x, y, G.FLOOR_COLOR);
@@ -123,7 +127,7 @@ var G = {
             case 1:
                 switch(subLevel) {
                     case 0:
-                        //Level Map: (0=wall, 1=floor, 2=player, 3=entrance, 4+=lumen)
+                        //Level Map: (0=wall, 1=floor, 2=player, 3=entrance, 4=lumen)
                         var map = [
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -132,7 +136,7 @@ var G = {
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                            [0,1,1,1,1,1,1,1,1,1,1,1,1,3,0],
+                            [0,2,1,1,1,1,1,1,1,1,1,1,1,3,0],
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -166,7 +170,7 @@ var G = {
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                            [0,3,1,1,1,1,1,1,1,1,1,1,1,3,0],
+                            [0,1,1,1,1,1,1,1,1,1,1,1,1,3,0],
                             [0,0,0,0,0,0,0,0,0,0,0,1,0,0,0],
                             [0,0,0,0,0,0,0,0,0,1,1,1,0,0,0],
                             [0,0,0,0,0,0,0,0,0,1,0,0,0,0,0],
@@ -201,7 +205,7 @@ var G = {
                             [0,0,0,0,0,0,1,0,0,0,0,0,0,0,0],
                             [0,0,0,0,0,0,1,0,0,0,0,0,0,0,0],
                             [0,0,0,0,0,0,1,0,0,0,0,0,0,0,0],
-                            [0,3,1,1,1,1,1,1,1,1,1,1,1,3,0],
+                            [0,1,1,1,1,1,1,1,1,1,1,1,1,3,0],
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -219,7 +223,7 @@ var G = {
                     case 1:
                         var map = [
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                            [0,1,1,1,1,1,1,1,1,1,0,1,1,5,0],
+                            [0,1,1,1,1,1,1,1,1,1,0,1,1,4,0],
                             [0,1,0,0,0,0,0,0,0,1,1,1,0,0,0],
                             [0,1,1,1,0,1,1,1,0,0,0,0,0,0,0],
                             [0,1,0,1,1,1,0,1,1,1,1,1,1,0,0],
@@ -257,7 +261,7 @@ var G = {
                             [0,0,0,0,1,1,0,0,0,0,0,0,0,0,0],
                             [0,0,0,0,1,0,0,0,0,0,0,0,0,0,0],
                             [0,0,0,0,1,0,0,0,0,0,0,0,0,0,0],
-                            [0,3,1,1,1,1,1,1,1,1,1,1,1,3,0],
+                            [0,1,1,1,1,1,1,1,1,1,1,1,1,3,0],
                             [0,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
                             [0,1,1,0,0,0,0,0,0,0,0,0,0,0,0],
                             [0,0,1,1,0,0,0,0,0,0,0,0,0,0,0],
@@ -287,7 +291,7 @@ var G = {
                             [1,0,1,0,1,0,0,0,0,0,1,1,1,1,1],
                             [1,0,1,0,1,1,1,0,1,1,1,0,1,0,1],
                             [1,0,0,0,0,0,0,0,0,0,0,0,1,0,1],
-                            [1,1,1,1,1,1,1,1,6,0,1,0,1,0,1],
+                            [1,1,1,1,1,1,1,1,4,0,1,0,1,0,1],
                             [0,0,0,0,0,0,0,0,0,0,1,1,1,0,3]];
 
                         G.loadMap(map);
@@ -303,13 +307,13 @@ var G = {
                             [0,1,0,0,1,0,1,0,1,1,1,0,1,0,0],
                             [0,1,1,1,1,0,1,0,0,0,0,0,1,0,0],
                             [0,0,0,0,0,0,1,0,1,1,1,0,1,0,0],
-                            [0,1,1,1,1,1,1,0,1,0,1,0,1,7,0],
+                            [0,1,1,1,1,1,1,0,1,0,1,0,1,4,0],
                             [0,1,0,0,0,0,0,0,1,0,1,0,0,0,0],
                             [0,1,0,1,1,1,0,1,1,0,1,1,1,1,0],
                             [0,1,0,1,0,1,0,1,0,0,0,0,0,1,0],
                             [0,1,1,1,0,1,1,1,0,1,1,1,0,1,0],
                             [0,1,0,0,0,0,0,0,0,1,0,0,0,1,0],
-                            [0,1,1,1,1,1,1,1,1,1,0,8,1,1,0],
+                            [0,1,1,1,1,1,1,1,1,1,0,4,1,1,0],
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]];
 
                         G.loadMap(map);
@@ -399,23 +403,12 @@ var G = {
                 if(G.activeSubLevel === 0) {
                     //If in the main "hub" level, entrances follow these rules:
                     if(newY === 7) {
-                        //If y is in the middle of the level, we know it is going to next/previous level
-
-                        if(newX > 7) {
-                            //If we are going to the next level
-                            newX = newX-11;
-                            G.loadLevel(G.activeLevel + 1, 0);
-                            G.playerPos = [newX, newY];
-                            PS.spriteMove(G.playerSprite, newX, newY);
-                        }
-                        else if(newX < 7) {
-                            //If we are going to the previous level
-                            newX = newX+11;
-                            G.loadLevel(G.activeLevel - 1, 0);
-                            G.playerPos = [newX, newY];
-                            PS.spriteMove(G.playerSprite, newX, newY);
-                        }
-
+                        //If y is in the middle of the level, we know it is going to next level
+                        //So we need to clean up player sprite and load next level
+                        newX = newX-12;
+                        G.loadLevel(G.activeLevel + 1, 0);
+                        G.playerPos = [newX, newY];
+                        PS.spriteMove(G.playerSprite, newX, newY);
                     }
                     else if(newY < 7) {
                         //If it is above the middle, it is going to sublevel 1
@@ -455,7 +448,7 @@ var G = {
                 //If we are loading a new level, we just return as to not break anything else
                 break;
 
-            default:
+            case 4:
                 //LUMEN - Handle pickup and move to location
                 G.lumenPickup(newX, newY);
                 G.playerPos = [newX, newY];
@@ -514,8 +507,6 @@ var G = {
 
     lumenPickup: function(x, y) {
         //Set back to normal floor bead
-        var lumenID = PS.data(x, y);
-
         PS.color(x, y, G.FLOOR_COLOR);
         PS.radius(x, y, PS.DEFAULT);
         PS.scale(x, y, PS.DEFAULT);
@@ -531,7 +522,6 @@ var G = {
         }
 
         G.lumenCounter++;
-        G.lumensFound[lumenID] = 1;
 
         G.newStatus();
     },
@@ -566,22 +556,6 @@ PS.init = function( system, options ) {
     PS.audioLoad("fx_coin2");
     PS.audioLoad("fx_powerup5");
 
-    //Makes a sprite that will be the player sprite
-    var newSprite = PS.spriteSolid(1, 1);
-
-    //Set sprite properties
-    PS.spritePlane(newSprite, 1);
-    PS.spriteSolidColor(newSprite, G.PLAYER_COLOR);
-    PS.spriteMove(newSprite, 1, 7);
-
-    //Save information
-    G.playerSprite = newSprite;
-    G.playerPos = [1, 7];
-
-    //Set the tile to a normal floor tile since the sprite is on top
-    PS.color(1, 7, G.FLOOR_COLOR);
-    PS.data(1, 7, 1);
-
     G.loadLevel(1, 0);
 };
 
@@ -599,33 +573,25 @@ PS.keyDown = function( key, shift, ctrl, options ) {
 
     switch(key) {
         case 119:
-            //W
-            G.movePlayer(0, -1);
-            break;
+            //W - we handle same as up arrow, so no break
         case PS.KEY_ARROW_UP:
             G.movePlayer(0, -1);
             break;
 
         case 97:
-            //A
-            G.movePlayer(-1, 0);
-            break;
+            //A - we handle same as left arrow, so no break
         case PS.KEY_ARROW_LEFT:
             G.movePlayer(-1, 0);
             break;
 
         case 115:
-            //S
-            G.movePlayer(0, 1);
-            break;
+            //S - we handle same as down arrow, so no break
         case PS.KEY_ARROW_DOWN:
             G.movePlayer(0, 1);
             break;
 
         case 100:
-            //D
-            G.movePlayer(1, 0);
-            break;
+            //D - we handle same as right arrow, so no break
         case PS.KEY_ARROW_RIGHT:
             G.movePlayer(1, 0);
             break;
