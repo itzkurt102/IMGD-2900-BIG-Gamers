@@ -61,6 +61,11 @@ var G = {
     timer: "",
     moveX: 0,
     moveY: 0,
+    levelLOSlight: [],
+    timeString: "",
+    secondsPlayed: 0,
+    secondFlag: 0,
+    gameOver: false,
 
 
     loadMap: function(map) {
@@ -383,6 +388,7 @@ var G = {
                             G.currentStatusLine = "Hmm...Maybe we should fix that...";
                         }
 
+                        G.gameOver = true;
                         G.newStatus();
                         G.activeLevel = 5;
                         G.activeSubLevel = 0;
@@ -499,12 +505,29 @@ var G = {
                 break;
         }
 
+        //Make player circle and fix bgColor
+        PS.radius(newX, newY, 50);
+        if(G.levelColored[G.activeLevel][G.activeSubLevel]) {
+            PS.bgColor(newX, newY, G.COLORED_FLOOR_COLOR);
+        }
+        else {
+            PS.bgColor(newX, newY, G.FLOOR_COLOR);
+        }
+        PS.bgAlpha(newX, newY, 255);
+        PS.scale(newX, newY, 80);
+
+        //Make sure last location is set back to normal
+        PS.radius(newX-dx, newY-dy, PS.DEFAULT);
+        PS.bgAlpha(newX-dx, newY-dy, PS.DEFAULT);
+        PS.scale(newX-dx, newY-dy, PS.DEFAULT);
+
+
         //Handle lighting:
         if(G.levelSpotlighted[G.activeLevel][G.activeSubLevel]) {
             G.spotLight(newX, newY);
         }
-        else if(G.activeLevel === 6 || G.activeLevel === 7) {
-            //Different lighting
+        else if(G.levelLOSlight[G.activeLevel][G.activeSubLevel]) {
+            G.losLight(newX, newY);
         }
         else if(G.activeLevel === 8 || G.activeLevel === 9) {
             //Different lighting
@@ -570,6 +593,9 @@ var G = {
         if(G.lumenCounter === 0) {
             G.currentStatusLine = "Huh...well that's new";
         }
+        if(G.activeLevel === 4) {
+            G.currentStatusLine = "Oh...these make everything bright!";
+        }
 
         G.lumenCounter++;
         G.lumensFound[lumenID] = 1;
@@ -599,9 +625,60 @@ var G = {
 
     },
 
+    losLight: function(centerX, centerY) {
+        PS.alpha(PS.ALL, PS.ALL, 0);
+
+        //Go up until a wall is hit
+        for(var y = centerY-1; y > 0; y--) {
+            var beadData = PS.data(centerX, y);
+            PS.alpha(centerX, y, 255);
+            if(beadData === 0) {
+                //If the bead is a wall, we stop the light in this direction
+                break;
+            }
+        }
+
+        //Go down until a wall is hit
+        for(var y = centerY+1; y < G.DIMENSION; y++) {
+            var beadData = PS.data(centerX, y);
+            PS.alpha(centerX, y, 255);
+            if(beadData === 0) {
+                //If the bead is a wall, we stop the light in this direction
+                break;
+            }
+        }
+
+        //Go left until a wall is hit
+        for(var x = centerX-1; x > 0; x--) {
+            var beadData = PS.data(x, centerY);
+            PS.alpha(x, centerY, 255);
+            if(beadData === 0) {
+                //If the bead is a wall, we stop the light in this direction
+                break;
+            }
+        }
+
+        //Go right until a wall is hit
+        for(var x = centerX+1; x < G.DIMENSION; x++) {
+            var beadData = PS.data(x, centerY);
+            PS.alpha(x, centerY, 255);
+            if(beadData === 0) {
+                //If the bead is a wall, we stop the light in this direction
+                break;
+            }
+        }
+
+        //Light up everything else that needs to be lit up
+        for(var s = 0; s < G.spotLighted.length; s++) {
+            centerX = G.spotLighted[s][0];
+            centerY = G.spotLighted[s][1];
+            PS.alpha(centerX, centerY, 255);
+        }
+    },
+
     //Automatically updates status with the lumen count
     newStatus: function() {
-        var newStatus = "[" + G.lumenCounter + "/5] " + G.currentStatusLine;
+        var newStatus = G.timeString + " [" + G.lumenCounter + "/5] " + G.currentStatusLine;
         PS.statusText(newStatus);
     },
 
@@ -613,9 +690,40 @@ var G = {
 
     moveTick: function() {
         //Only move if the lumen is not transforming and the player is actually moving
-        if(!G.timerActive && (G.moveX !== 0 || G.moveY !== 0)) {
+        if (!G.timerActive && (G.moveX !== 0 || G.moveY !== 0)) {
             G.movePlayer(G.moveX, G.moveY);
         }
+
+        //Update timer
+        G.secondFlag += 5;
+        if(G.secondFlag === 60) {
+            G.secondsPlayed++;
+            G.secondFlag = 0;
+        }
+        G.gameTime();
+    },
+
+    gameTime: function() {
+
+        if(!G.gameOver) {
+            var hours = Math.floor(G.secondsPlayed / 3600);
+            var totalSeconds = G.secondsPlayed % 3600;
+            var minutes = Math.floor(totalSeconds / 60);
+            var seconds = totalSeconds % 60;
+
+            var inbetween = ""
+
+            if(seconds < 10) {
+                inbetween = " : 0";
+            }
+            else {
+                inbetween = " : ";
+            }
+
+            G.timeString = minutes + inbetween + seconds;
+            G.newStatus();
+        }
+
     }
 
 }
@@ -662,6 +770,7 @@ PS.init = function( system, options ) {
     for(var i = 0; i < 6; i++) {
         G.levelColored[i] = [false, false, false];
         G.levelSpotlighted[i] = [false, false, false];
+        G.levelLOSlight[i] = [false, false, false];
     }
     G.levelSpotlighted[4] = [true, true, true];
 
@@ -671,7 +780,19 @@ PS.init = function( system, options ) {
     PS.audioLoad( "color-transform", {fileTypes: ["wav"], path: "audio/", volume : 0.5} );
     PS.audioLoad( "lumen-pickup", {fileTypes: ["wav"], path: "audio/", volume : 0.5} );
     G.loadLevel(1, 0);
+
     PS.timerStart(5, G.moveTick);
+
+    //Make starting player circle and fix bgColor
+    PS.radius(1, 7, 50);
+    if(G.levelColored[G.activeLevel][G.activeSubLevel]) {
+        PS.bgColor(1, 7, G.COLORED_FLOOR_COLOR);
+    }
+    else {
+        PS.bgColor(1, 7, G.FLOOR_COLOR);
+    }
+    PS.bgAlpha(1, 7, 255);
+    PS.scale(1, 7, 80);
 };
 
 /*
