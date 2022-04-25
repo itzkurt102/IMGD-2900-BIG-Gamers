@@ -41,11 +41,11 @@ If you don't use JSHint (or are using it with a configuration file), you can saf
 var G = {
 
     WALL_COLOR: PS.COLOR_BLACK,
-    FLOOR_COLOR: PS.COLOR_GRAY_LIGHT,
-    PLAYER_COLOR: PS.COLOR_CYAN,
-    ENTRANCE_COLOR: PS.COLOR_GREEN,
-    COLORED_WALL_COLOR: PS.COLOR_BLUE,
-    COLORED_FLOOR_COLOR: PS.COLOR_RED,
+    FLOOR_COLOR: 0x383838,
+    PLAYER_COLOR: 0xEAF6F2,
+    ENTRANCE_COLOR: 0x2BFF80,
+    COLORED_WALL_COLOR:0x141726,
+    COLORED_FLOOR_COLOR: 0xD95032,
     DIMENSION: 15,
     playerSprite: "",
     playerPos: [0,0],
@@ -66,6 +66,36 @@ var G = {
     secondsPlayed: 0,
     secondFlag: 0,
     gameOver: false,
+
+
+    /*
+    Color matches:
+
+    LUMEN - 0xD95032
+    WALL - 0x141726
+    FLOOR - 0xD95032
+    ARRAY - [0xD95032,0x141726,0xD95032]
+    -------------------------------------
+    LUMEN - 0xFF3B71
+    WALL - 0x110559
+    FLOOR - 0xF205CB
+    ARRAY - [0xFF3B71,0x110559,0xF205CB]
+    -------------------------------------
+    LUMEN - 0xC729F2
+    WALL - 0x2E0B45
+    FLOOR - 0x7B17A6
+    ARRAY - [0xC729F2,0x2E0B45,0x7B17A6]
+    -------------------------------------
+    LUMEN - 0xF2E205
+    WALL - 0x8C4507
+    FLOOR - 0xDBA908
+    ARRAY - [0xF2E205,0x8C4507,0xDBA908]
+    -------------------------------------
+    LUMEN - 0x05F2DB
+    WALL - 0x132126
+    FLOOR - 0x05CBDB
+    ARRAY - [0x05F2DB,0x132126,0x05CBDB]
+     */
 
 
     loadMap: function(map) {
@@ -744,7 +774,7 @@ PS.init = function( system, options ) {
     PS.border(PS.ALL, PS.ALL, 0);
 	PS.statusText( "Tunnel Vision" );
     PS.statusColor(PS.COLOR_WHITE);
-    PS.gridColor(PS.COLOR_GRAY);
+    PS.gridColor(PS.COLOR_BLACK);
 
     //Load audio
     PS.audioLoad("fx_coin2");
