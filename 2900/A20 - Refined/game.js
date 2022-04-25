@@ -38,73 +38,98 @@ If you don't use JSHint (or are using it with a configuration file), you can saf
 
 "use strict"; // Do NOT remove this directive!
 
+//Custom Game Variables and functions
 var G = {
 
+    //Color Constants
     WALL_COLOR: PS.COLOR_BLACK,
     FLOOR_COLOR: 0x383838,
     PLAYER_COLOR: 0xEAF6F2,
     ENTRANCE_COLOR: 0x2BFF80,
-    COLORED_WALL_COLOR:0x141726,
-    COLORED_FLOOR_COLOR: 0xD95032,
-    DIMENSION: 15,
-    playerSprite: "",
-    playerPos: [0,0],
+    //Format for lumen colors: [LUMEN, WALL, FLOOR]
+    LUMEN_COLORS: [
+        [0xD95032,0x141726,0xD95032],
+        [0xFF3B71,0x110559,0xF205CB],
+        [0xC729F2,0x2E0B45,0x7B17A6],
+        [0xF2E205,0x8C4507,0xDBA908],
+        [0x05F2DB,0x132126,0x05CBDB],
+        ],
+    activeLumenIndex: -1, //Keeps track of current level's lumen-related colors
+    DIMENSION: 15, //Bead dimensions
+    playerSprite: "", //Saves the player sprite
+    playerPos: [0,0], //Keeps track of player position
     activeLevel: 0,
     activeSubLevel: 0,
-    spotLighted: [],
-    lumenCounter: 0,
-    lumensFound: {},
-    currentStatusLine: "",
-    levelColored: [],
-    levelSpotlighted: [],
-    timerActive: false,
-    timer: "",
-    moveX: 0,
+    spotLighted: [], //Keeps track of current level's spots that need to be spotlighted
+    lumenCounter: 0, //Counts the number of lumens collected
+    lumensFound: {}, //Stores the lumens that have been found so we can "save" player progress
+    currentStatusLine: "", //A string that is the main status text
+    levelColored: [], //Stores which levels are colored
+    levelSpotlighted: [], //Stores which levels are spotlighted
+    levelLOSlight: [], //Stores which levels are LOS lighted
+    moveLock: false, //locks player movement while colors are transforming
+    color_fade_timer: "", //stores the current fade timer for color transformations
+    moveX: 0, //for movement
     moveY: 0,
-    levelLOSlight: [],
-    timeString: "",
-    secondsPlayed: 0,
-    secondFlag: 0,
-    gameOver: false,
+    timeString: "", //Stores the string for the elapsed time
+    secondsPlayed: 0, //Seconds the player has played
+    secondFlag: 0, //Counter that ranges from 0-60 that resets every second elapsed
+    gameOver: false, //Flag for game over
 
-
-    /*
-    Color matches:
-
-    LUMEN - 0xD95032
-    WALL - 0x141726
-    FLOOR - 0xD95032
-    ARRAY - [0xD95032,0x141726,0xD95032]
-    -------------------------------------
-    LUMEN - 0xFF3B71
-    WALL - 0x110559
-    FLOOR - 0xF205CB
-    ARRAY - [0xFF3B71,0x110559,0xF205CB]
-    -------------------------------------
-    LUMEN - 0xC729F2
-    WALL - 0x2E0B45
-    FLOOR - 0x7B17A6
-    ARRAY - [0xC729F2,0x2E0B45,0x7B17A6]
-    -------------------------------------
-    LUMEN - 0xF2E205
-    WALL - 0x8C4507
-    FLOOR - 0xDBA908
-    ARRAY - [0xF2E205,0x8C4507,0xDBA908]
-    -------------------------------------
-    LUMEN - 0x05F2DB
-    WALL - 0x132126
-    FLOOR - 0x05CBDB
-    ARRAY - [0x05F2DB,0x132126,0x05CBDB]
-     */
-
-
+    //Loads the given map
     loadMap: function(map) {
+        //Resets everything necessary
         PS.data(PS.ALL, PS.ALL, 0);
         PS.radius(PS.ALL, PS.ALL, PS.DEFAULT);
         PS.scale(PS.ALL, PS.ALL, PS.DEFAULT);
         PS.bgColor(PS.ALL, PS.ALL, PS.DEFAULT);
         PS.bgAlpha(PS.ALL, PS.ALL, PS.DEFAULT);
         G.spotLighted = [];
+
+        //Randomly picks a lumen color set
+        G.activeLumenIndex = PS.random(G.LUMEN_COLORS.length) - 1;
+
+        //Load lumens in first to check if they have been picked up and
+        for(var x = 0; x < G.DIMENSION; x++) {
+            for (var y = 0; y < G.DIMENSION; y++) {
+                if(map[y][x] >= 4) {
+
+                    if(G.lumensFound[map[y][x]] === null) {
+                        //This means it is first time being loaded
+                        G.lumensFound[map[y][x]] = -1;
+                    }
+                    else if(G.lumensFound[map[y][x]] >= 0) {
+                        //This means it was already found, so we want to not load it back in, we treat it like floor
+                        //FLOOR
+                        G.activeLumenIndex = G.lumensFound[map[y][x]];
+                        if(G.levelColored[G.activeLevel][G.activeSubLevel]) {
+                            PS.color(x, y, G.LUMEN_COLORS[G.lumensFound[map[y][x]]][2]);
+                        }
+                        else {
+                            PS.color(x, y, G.FLOOR_COLOR);
+                        }
+                        PS.data(x, y, 1);
+                        break;
+                    }
+
+
+                    PS.color(x, y, G.LUMEN_COLORS[G.activeLumenIndex][0]);
+                    PS.data(x, y, map[y][x]);
+                    PS.radius(x, y, 50);
+                    PS.scale(x, y, 50);
+                    if(G.levelColored[G.activeLevel][G.activeSubLevel]) {
+                        PS.bgColor(x, y, G.LUMEN_COLORS[G.activeLumenIndex][2]);
+                    }
+                    else {
+                        PS.bgColor(x, y, G.FLOOR_COLOR);
+                    }
+                    PS.bgAlpha(x, y, 255);
+                    G.spotLighted.push([x,y]);
+                }
+            }
+        }
+
+
 
         for(var x = 0; x < G.DIMENSION; x++) {
             for (var y = 0; y < G.DIMENSION; y++) {
@@ -113,7 +138,7 @@ var G = {
                     case 0:
                         //WALL
                         if(G.levelColored[G.activeLevel][G.activeSubLevel]) {
-                            PS.color(x, y, G.COLORED_WALL_COLOR);
+                            PS.color(x, y, G.LUMEN_COLORS[G.activeLumenIndex][1]);
                         }
                         else {
                             PS.color(x, y, G.WALL_COLOR);
@@ -123,7 +148,7 @@ var G = {
                     case 1:
                         //FLOOR
                         if(G.levelColored[G.activeLevel][G.activeSubLevel]) {
-                            PS.color(x, y, G.COLORED_FLOOR_COLOR);
+                            PS.color(x, y, G.LUMEN_COLORS[G.activeLumenIndex][2]);
                         }
                         else {
                             PS.color(x, y, G.FLOOR_COLOR);
@@ -140,37 +165,7 @@ var G = {
                         G.spotLighted.push([x,y]);
                         break;
                     default:
-                        //LUMEN
 
-                        if(G.lumensFound[map[y][x]] === null) {
-                            //This means it is first time being loaded
-                            G.lumensFound[map[y][x]] = 0;
-                        }
-                        else if(G.lumensFound[map[y][x]] === 1) {
-                            //This means it was already found, so we want to not load it back in, we treat it like floor
-                            //FLOOR
-                            if(G.levelColored[G.activeLevel][G.activeSubLevel]) {
-                                PS.color(x, y, G.COLORED_FLOOR_COLOR);
-                            }
-                            else {
-                                PS.color(x, y, G.FLOOR_COLOR);
-                            }
-                            PS.data(x, y, 1);
-                            break;
-                        }
-
-                        PS.color(x, y, PS.COLOR_BLUE);
-                        PS.data(x, y, map[y][x]);
-                        PS.radius(x, y, 50);
-                        PS.scale(x, y, 50);
-                        if(G.levelColored[G.activeLevel][G.activeSubLevel]) {
-                            PS.bgColor(x, y, G.COLORED_FLOOR_COLOR);
-                        }
-                        else {
-                            PS.bgColor(x, y, G.FLOOR_COLOR);
-                        }
-                        PS.bgAlpha(x, y, 255);
-                        G.spotLighted.push([x,y]);
                         break;
                 }
             }
@@ -538,7 +533,7 @@ var G = {
         //Make player circle and fix bgColor
         PS.radius(newX, newY, 50);
         if(G.levelColored[G.activeLevel][G.activeSubLevel]) {
-            PS.bgColor(newX, newY, G.COLORED_FLOOR_COLOR);
+            PS.bgColor(newX, newY, G.LUMEN_COLORS[G.activeLumenIndex][2]);
         }
         else {
             PS.bgColor(newX, newY, G.FLOOR_COLOR);
@@ -606,7 +601,7 @@ var G = {
         var lumenID = PS.data(x, y);
 
         if(G.levelColored[G.activeLevel][G.activeSubLevel]) {
-            PS.color(x, y, G.COLORED_FLOOR_COLOR);
+            PS.color(x, y, G.LUMEN_COLORS[G.activeLumenIndex][2]);
         }
         else {
             PS.color(x, y, G.FLOOR_COLOR);
@@ -626,9 +621,12 @@ var G = {
         if(G.activeLevel === 4) {
             G.currentStatusLine = "Oh...these make everything bright!";
         }
+        //if(G.activeLevel === 4 && G.activeSubLevel === 2) {
+        //    G.currentStatusLine = "I bet the other one is still there..."
+        //}
 
         G.lumenCounter++;
-        G.lumensFound[lumenID] = 1;
+        G.lumensFound[lumenID] = G.activeLumenIndex;
 
         G.newStatus();
 
@@ -650,8 +648,8 @@ var G = {
             G.levelSpotlighted[G.activeLevel][G.activeSubLevel] = false;
         }
 
-        G.timerActive = true;
-        G.timer = PS.timerStart(101, G.tick);
+        G.moveLock = true;
+        G.color_fade_timer = PS.timerStart(101, G.tick);
 
     },
 
@@ -714,13 +712,13 @@ var G = {
 
     tick: function() {
         PS.fade(PS.ALL, PS.ALL, PS.DEFAULT);
-        G.timerActive = false;
-        PS.timerStop(G.timer);
+        G.moveLock = false;
+        PS.timerStop(G.color_fade_timer);
     },
 
     moveTick: function() {
         //Only move if the lumen is not transforming and the player is actually moving
-        if (!G.timerActive && (G.moveX !== 0 || G.moveY !== 0)) {
+        if (!G.moveLock && (G.moveX !== 0 || G.moveY !== 0)) {
             G.movePlayer(G.moveX, G.moveY);
         }
 
@@ -815,12 +813,7 @@ PS.init = function( system, options ) {
 
     //Make starting player circle and fix bgColor
     PS.radius(1, 7, 50);
-    if(G.levelColored[G.activeLevel][G.activeSubLevel]) {
-        PS.bgColor(1, 7, G.COLORED_FLOOR_COLOR);
-    }
-    else {
-        PS.bgColor(1, 7, G.FLOOR_COLOR);
-    }
+    PS.bgColor(1, 7, G.FLOOR_COLOR);
     PS.bgAlpha(1, 7, 255);
     PS.scale(1, 7, 80);
 };
@@ -930,4 +923,3 @@ PS.exit = function( x, y, data, options ) {
 PS.exitGrid = function( options ) {
     //NOT USED - KEYBOARD INPUT ONLY
 };
-
