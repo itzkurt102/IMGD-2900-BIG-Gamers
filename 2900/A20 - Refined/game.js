@@ -46,6 +46,7 @@ var G = {
     FLOOR_COLOR: 0x383838,
     PLAYER_COLOR: 0xEAF6F2,
     ENTRANCE_COLOR: 0x2BFF80,
+    FINAL_EXIT_COLOR: PS.COLOR_RED,
     //Format for lumen colors: [LUMEN, WALL, FLOOR]
     LUMEN_COLORS: [
         [0xD95032,0x141726,0xD95032],
@@ -61,7 +62,7 @@ var G = {
     activeLevel: 0,
     activeSubLevel: 0,
     spotLighted: [], //Keeps track of current level's spots that need to be spotlighted
-    lumenCounter: 0, //Counts the number of lumens collected
+    lumenCounter: 8, //Counts the number of lumens collected
     lumensFound: {}, //Stores the lumens that have been found so we can "save" player progress
     currentStatusLine: "", //A string that is the main status text
     levelColored: [], //Stores which levels are colored
@@ -156,7 +157,10 @@ var G = {
                         PS.data(x, y, 1);
                         break;
                     case 2:
-                        //PLAYER
+                        //Final exit
+                        PS.color(x, y, G.FINAL_EXIT_COLOR);
+                        PS.data(x, y, 2);
+                        break;
                         break;
                     case 3:
                         //ENTRANCE
@@ -184,7 +188,7 @@ var G = {
             case 1:
                 switch(subLevel) {
                     case 0:
-                        //Level Map: (0=wall, 1=floor, 2=player, 3=entrance, 4+=lumen)
+                        //Level Map: (0=wall, 1=floor, 2=final exit, 3=entrance, 4+=lumen)
                         var map = [
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -379,48 +383,267 @@ var G = {
                         break;
                 }
                 break;
-
             case 5:
                 switch(subLevel) {
                     case 0:
                         var map = [
-                            [0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
-                            [0,0,0,0,0,0,1,1,1,0,0,0,0,0,0],
-                            [0,0,0,0,0,1,1,1,1,1,0,0,0,0,0],
-                            [0,0,0,0,1,1,1,1,1,1,1,0,0,0,0],
-                            [0,0,0,1,1,1,1,1,1,1,1,1,0,0,0],
-                            [0,0,1,1,1,1,1,1,1,1,1,1,1,0,0],
-                            [0,1,1,1,1,1,1,1,1,1,1,1,1,1,0],
-                            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-                            [0,1,1,1,1,1,1,1,1,1,1,1,1,1,0],
-                            [0,0,1,1,1,1,1,1,1,1,1,1,1,0,0],
-                            [0,0,0,1,1,1,1,1,1,1,1,1,0,0,0],
-                            [0,0,0,0,1,1,1,1,1,1,1,0,0,0,0],
-                            [0,0,0,0,0,1,1,1,1,1,0,0,0,0,0],
-                            [0,0,0,0,0,0,1,1,1,0,0,0,0,0,0],
-                            [0,0,0,0,0,0,0,1,0,0,0,0,0,0,0]];
+                            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                            [0,0,0,0,3,1,1,0,0,0,0,0,0,0,0],
+                            [0,0,0,0,0,0,1,0,0,0,0,0,0,0,0],
+                            [0,0,0,1,1,1,1,0,0,0,0,0,0,0,0],
+                            [0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],
+                            [0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],
+                            [0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],
+                            [0,3,1,1,1,1,1,1,1,1,1,1,1,3,0],
+                            [0,0,1,0,0,0,0,0,0,0,0,0,0,0,0],
+                            [0,0,1,0,0,0,0,0,0,0,0,0,0,0,0],
+                            [0,0,1,0,0,0,0,0,0,0,0,0,0,0,0],
+                            [0,0,1,1,1,0,0,0,0,0,0,0,0,0,0],
+                            [0,0,0,0,1,0,0,0,0,0,0,0,0,0,0],
+                            [0,3,1,1,1,0,0,0,0,0,0,0,0,0,0],
+                            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]];
 
-                        if(G.lumenCounter === 0) {
-                            G.currentStatusLine = "Well, you finished I guess...";
-                        }
-                        else if(G.lumenCounter > 0 && G.lumenCounter < 4) {
-                            G.currentStatusLine = "Good Job. Thanks for playing!";
-                        }
-                        else if(G.lumenCounter === 5) {
-                            G.currentStatusLine = "Great Job! Congrats collector!";
-                        }
-                        else if(G.lumenCounter > 5) {
-                            G.currentStatusLine = "Hmm...Maybe we should fix that...";
-                        }
-
-                        G.gameOver = true;
+                        G.currentStatusLine = "Status";
                         G.newStatus();
                         G.activeLevel = 5;
                         G.activeSubLevel = 0;
                         G.loadMap(map);
                         break;
                     case 1:
+                        var map = [
+                            [1,1,1,1,1,1,1,1,1,1,1,1,1,0,0],
+                            [1,0,0,0,0,0,0,0,0,0,0,0,1,0,9],
+                            [1,1,1,1,1,1,1,1,1,1,1,0,1,0,1],
+                            [0,0,0,0,0,0,0,0,0,0,1,0,1,0,1],
+                            [1,1,1,1,1,1,1,1,1,1,1,0,1,0,1],
+                            [1,0,0,0,0,0,0,0,0,0,0,0,1,0,1],
+                            [1,1,1,1,1,1,1,1,1,1,1,0,1,0,1],
+                            [0,0,0,0,0,0,0,0,0,0,1,0,1,0,1],
+                            [1,1,1,1,1,1,1,1,1,1,1,0,1,0,1],
+                            [1,0,0,0,0,0,0,0,0,0,0,0,1,0,1],
+                            [1,1,1,1,1,1,1,1,1,1,1,0,1,0,1],
+                            [0,0,0,0,0,0,0,0,0,0,1,0,1,0,1],
+                            [1,1,1,1,1,1,1,1,1,1,1,0,1,0,1],
+                            [1,0,0,0,0,0,0,1,0,0,1,0,0,0,1],
+                            [1,1,1,1,1,3,0,1,1,0,1,1,1,1,1]];
 
+                        G.activeLevel = 5;
+                        G.activeSubLevel = 1;
+                        G.loadMap(map);
+                        break;
+                    case 2:
+                        var map = [
+                            [3,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                            [1,1,1,1,1,1,1,1,1,1,1,1,1,0,1],
+                            [1,0,0,0,0,0,0,0,0,0,0,0,1,0,1],
+                            [1,0,1,1,1,1,1,1,1,1,1,0,1,0,1],
+                            [1,0,1,0,0,0,0,0,0,0,1,0,1,0,1],
+                            [1,0,1,0,1,1,1,1,1,0,1,0,1,0,1],
+                            [1,0,1,0,1,0,0,0,1,0,1,0,1,0,1],
+                            [1,0,1,0,1,0,10,1,1,0,1,0,1,0,1],
+                            [1,0,1,0,1,0,0,0,0,0,1,0,1,0,1],
+                            [1,0,1,0,1,1,1,1,1,1,1,0,1,0,1],
+                            [1,0,1,0,0,0,0,0,0,0,0,0,1,0,1],
+                            [1,0,1,1,1,1,1,1,1,1,1,1,1,0,1],
+                            [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]];
+
+                        G.activeLevel = 5;
+                        G.activeSubLevel = 2;
+                        G.loadMap(map);
+                        break;
+                }
+                break;
+
+            case 6:
+                switch(subLevel) {
+                    case 0:
+                        var map = [
+                            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                            [1,1,1,1,1,1,1,1,1,1,1,1,1,3,0],
+                            [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                            [1,1,1,1,1,1,1,1,1,1,0,0,0,0,0],
+                            [0,0,0,0,0,0,0,0,0,1,0,0,0,0,0],
+                            [0,0,0,0,0,0,0,0,0,1,0,0,0,0,0],
+                            [0,0,0,0,0,0,0,0,0,1,0,0,0,0,0],
+                            [0,3,1,1,1,1,1,1,1,1,1,1,1,3,0],
+                            [0,0,1,0,0,0,0,0,0,0,0,0,0,0,0],
+                            [0,0,1,0,0,0,0,0,0,0,0,0,0,0,0],
+                            [0,0,1,0,0,0,0,0,0,0,0,0,0,0,0],
+                            [0,0,1,0,0,0,0,0,0,0,0,0,0,0,0],
+                            [0,0,1,0,0,0,0,0,0,0,0,0,0,0,0],
+                            [0,3,1,0,0,0,0,0,0,0,0,0,0,0,0],
+                            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]];
+
+                        G.currentStatusLine = "Status";
+                        G.newStatus();
+                        G.activeLevel = 6;
+                        G.activeSubLevel = 0;
+                        G.loadMap(map);
+                        break;
+                    case 1:
+                        var map = [
+                            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,0],
+                            [1,0,0,0,0,0,0,0,0,0,0,0,0,11,0],
+                            [1,0,1,1,1,1,1,1,1,1,1,1,0,0,0],
+                            [1,0,1,1,1,1,0,0,0,1,1,1,1,1,0],
+                            [1,0,1,1,1,0,1,1,1,0,1,1,1,1,0],
+                            [1,0,1,1,0,1,1,1,1,1,0,1,1,1,0],
+                            [1,0,1,1,1,1,1,1,1,1,0,1,1,1,0],
+                            [1,0,1,1,1,1,1,1,1,1,0,1,1,1,0],
+                            [1,0,1,1,1,1,1,1,1,0,1,1,1,1,0],
+                            [1,0,1,1,1,1,1,1,0,1,1,1,1,1,0],
+                            [1,0,1,1,1,1,1,0,1,1,1,1,1,1,0],
+                            [1,0,1,1,1,1,1,0,1,1,1,1,1,1,0],
+                            [1,0,1,1,1,1,1,0,1,1,1,1,1,1,0],
+                            [1,0,1,1,1,1,1,1,1,1,1,1,1,0,0],
+                            [1,1,1,1,1,1,1,0,1,1,1,1,1,1,3]];
+
+                        G.activeLevel = 6;
+                        G.activeSubLevel = 1;
+                        G.loadMap(map);
+                        break;
+                    case 2:
+                        var map = [
+                            [3,1,1,0,1,1,1,1,0,1,1,1,1,1,0],
+                            [0,0,1,0,1,0,0,1,1,1,0,0,1,0,0],
+                            [0,1,1,1,1,1,0,1,0,0,0,1,1,1,1],
+                            [1,1,0,1,1,1,1,1,1,1,0,1,0,1,1],
+                            [1,1,0,0,1,0,0,0,1,0,0,1,0,0,1],
+                            [0,1,1,1,1,0,1,1,1,1,1,1,1,0,1],
+                            [0,0,1,1,1,1,1,0,0,0,1,0,1,1,1],
+                            [1,1,1,0,1,0,0,0,1,0,1,0,0,1,1],
+                            [1,0,0,0,1,1,1,1,1,1,1,1,0,0,1],
+                            [1,1,1,0,0,0,1,1,0,0,0,0,0,1,1],
+                            [1,1,1,1,1,1,1,0,0,1,1,1,1,1,1],
+                            [1,0,0,1,0,1,1,1,1,1,1,0,0,0,1],
+                            [1,1,0,1,0,1,1,0,1,0,1,1,0,1,1],
+                            [1,1,0,1,0,0,0,0,1,0,0,0,0,12,0],
+                            [1,1,1,1,1,1,1,1,1,1,1,1,0,0,0],];
+
+                        G.activeLevel = 6;
+                        G.activeSubLevel = 2;
+                        G.loadMap(map);
+                        break;
+                }
+                break;
+
+            case 7:
+                switch(subLevel) {
+                    case 0:
+                        var map = [
+                            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                            [0,0,2,2,2,2,2,2,2,2,2,2,2,0,0],
+                            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                            [0,3,1,1,1,1,1,1,1,1,1,1,1,2,0],
+                            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                            [0,0,2,2,2,2,2,2,2,2,2,2,2,0,0],
+                            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]];
+
+                        G.gameOver = false;
+                        G.newStatus();
+                        G.activeLevel = 7;
+                        G.activeSubLevel = 0;
+                        G.loadMap(map);
+                        break;
+                    case 1:
+                        var map = [
+                            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                            [0,0,2,2,2,2,2,2,2,2,2,2,2,0,0],
+                            [0,0,1,1,1,1,1,1,1,1,1,1,1,0,0],
+                            [0,0,1,1,1,1,1,1,1,1,1,1,1,0,0],
+                            [0,3,1,1,1,1,1,1,1,1,1,1,1,2,0],
+                            [0,0,1,1,1,1,1,1,1,1,1,1,1,0,0],
+                            [0,0,1,1,1,1,1,1,1,1,1,1,1,0,0],
+                            [0,0,2,2,2,2,2,2,2,2,2,2,2,0,0],
+                            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]];
+
+                        G.gameOver = false;
+                        G.newStatus();
+                        G.activeLevel = 7;
+                        G.activeSubLevel = 1;
+                        G.loadMap(map);
+                        break;
+                    case 2:
+
+                        break;
+                }
+                break;
+
+            case 8:
+                switch(subLevel) {
+                    case 0:
+                        var map = [
+                            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                            [0,0,1,1,1,1,1,1,1,1,1,1,1,0,0],
+                            [0,0,1,1,1,1,1,1,1,1,1,1,1,0,0],
+                            [0,0,1,1,1,1,1,1,1,1,1,1,1,0,0],
+                            [0,0,1,1,1,1,1,1,1,1,1,1,1,0,0],
+                            [0,0,1,1,1,1,1,1,1,1,1,1,1,0,0],
+                            [0,3,1,1,1,1,1,1,1,1,1,1,1,1,0],
+                            [0,0,1,1,1,1,1,1,1,1,1,1,1,0,0],
+                            [0,0,1,1,1,1,1,1,1,1,1,1,1,0,0],
+                            [0,0,1,1,1,1,1,1,1,1,1,1,1,0,0],
+                            [0,0,1,1,1,1,1,1,1,1,1,1,1,0,0],
+                            [0,0,1,1,1,1,1,1,1,1,1,1,1,0,0],
+                            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]];
+
+                        if(G.lumenCounter === 0) {
+                            G.currentStatusLine = "Well, this seems like the end...";
+                        }
+                        else if(G.lumenCounter > 0 && G.lumenCounter < 9) {
+                            G.currentStatusLine = "I wonder if I missed anything...";
+                        }
+
+                        G.gameOver = true;
+                        G.newStatus();
+                        G.activeLevel = 8;
+                        G.activeSubLevel = 0;
+                        G.loadMap(map);
+                        break;
+                    case 1:
+                        var map = [
+                            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                            [0,0,1,1,1,1,1,1,1,1,1,1,1,0,0],
+                            [0,0,1,1,1,1,1,1,1,1,1,1,1,0,0],
+                            [0,0,1,1,1,1,1,1,1,1,1,1,1,0,0],
+                            [0,0,1,1,1,1,1,1,1,1,1,1,1,0,0],
+                            [0,0,1,1,1,1,1,1,1,1,1,1,1,0,0],
+                            [0,3,1,1,1,1,1,1,1,1,1,1,1,0,0],
+                            [0,0,1,1,1,1,1,1,1,1,1,1,1,0,0],
+                            [0,0,1,1,1,1,1,1,1,1,1,1,1,0,0],
+                            [0,0,1,1,1,1,1,1,1,1,1,1,1,0,0],
+                            [0,0,1,1,1,1,1,1,1,1,1,1,1,0,0],
+                            [0,0,1,1,1,1,1,1,1,1,1,1,1,0,0],
+                            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]];
+
+
+                        G.currentStatusLine = "Wow. I found them all!";
+
+                        G.gameOver = true;
+                        G.newStatus();
+                        G.activeLevel = 8;
+                        G.activeSubLevel = 0;
+                        G.loadMap(map);
                         break;
                     case 2:
 
@@ -455,6 +678,39 @@ var G = {
                 PS.spriteMove(G.playerSprite, newX, newY);
                 break;
 
+            case 2:
+                if(newY === 7) {
+                    //If y is in the middle of the level, we know it is going to next/previous level
+
+                    if(newX > 7) {
+                        //If we are going to the next level
+                        PS.audioPlay( "warp-in", {fileTypes: ["wav"], path: "audio/", volume : 1.0} );
+                        newX = newX-11;
+                        G.loadLevel(G.activeLevel + 1, 0);
+                        G.playerPos = [newX, newY];
+                        PS.spriteMove(G.playerSprite, newX, newY);
+                    }
+                    else if(newX < 7) {
+                        PS.audioPlay( "warp-out", {fileTypes: ["wav"], path: "audio/", volume : 1.0} );
+                        //If we are going to the previous level
+                        newX = newX+11;
+                        G.loadLevel(G.activeLevel - 1, 0);
+                        G.playerPos = [newX, newY];
+                        PS.spriteMove(G.playerSprite, newX, newY);
+                    }
+
+                }
+                else {
+                    //If it is above the middle, it is going to sublevel 1
+                    //So we need to clean up player sprite and load next sublevel
+                    PS.audioPlay( "warp-in", {fileTypes: ["wav"], path: "audio/", volume : 1.0} );
+
+                    G.loadLevel(G.activeLevel + 1, 1);
+                    G.playerPos = [newX, newY];
+                    PS.spriteMove(G.playerSprite, newX, newY);
+                }
+                break;
+
             case 3:
                 //ENTRANCE - Need to move to new level
 
@@ -469,7 +725,13 @@ var G = {
                             //If we are going to the next level
                             PS.audioPlay( "warp-in", {fileTypes: ["wav"], path: "audio/", volume : 1.0} );
                             newX = newX-11;
-                            G.loadLevel(G.activeLevel + 1, 0);
+                            PS.debug(G.activeLevel + " " + G.lumenCounter);
+                            if(G.activeLevel === 6 && G.lumenCounter === 9) {
+                                G.loadLevel(G.activeLevel + 1, 1);
+                            }
+                            else {
+                                G.loadLevel(G.activeLevel + 1, 0);
+                            }
                             G.playerPos = [newX, newY];
                             PS.spriteMove(G.playerSprite, newX, newY);
                         }
@@ -486,7 +748,11 @@ var G = {
                     else if(newY < 7) {
                         //If it is above the middle, it is going to sublevel 1
                         //So we need to clean up player sprite and load next sublevel
+                        PS.audioPlay( "warp-in", {fileTypes: ["wav"], path: "audio/", volume : 1.0} );
                         newY = newY+12;
+                        if(G.activeLevel >= 5) {
+                            newY++;
+                        }
                         G.loadLevel(G.activeLevel, 1);
                         G.playerPos = [newX, newY];
                         PS.spriteMove(G.playerSprite, newX, newY);
@@ -494,7 +760,11 @@ var G = {
                     else if(newY > 7) {
                         //If it is below the middle, it is going to sublevel 2
                         //So we need to clean up player sprite and load next sublevel
+                        PS.audioPlay( "warp-in", {fileTypes: ["wav"], path: "audio/", volume : 1.0} );
                         newY = newY-12;
+                        if(G.activeLevel >= 5) {
+                            newY--;
+                        }
                         G.loadLevel(G.activeLevel, 2);
                         G.playerPos = [newX, newY];
                         PS.spriteMove(G.playerSprite, newX, newY);
@@ -506,12 +776,22 @@ var G = {
                     //So we need to clean up player sprite and load main level
                     if(G.activeSubLevel === 1) {
                         newY = newY-12;
+                        if(G.activeLevel >= 5) {
+                            newY--;
+                            if(G.activeLevel === 6) {
+                                newX -= 2;
+                            }
+                        }
                         G.loadLevel(G.activeLevel, 0);
                         G.playerPos = [newX, newY];
                         PS.spriteMove(G.playerSprite, newX, newY);
                     }
                     else if(G.activeSubLevel === 2) {
                         newY = newY+12;
+                        if(G.activeLevel >= 5) {
+                            newY++;
+                            newX += 2;
+                        }
                         G.loadLevel(G.activeLevel, 0);
                         G.playerPos = [newX, newY];
                         PS.spriteMove(G.playerSprite, newX, newY);
@@ -706,7 +986,7 @@ var G = {
 
     //Automatically updates status with the lumen count
     newStatus: function() {
-        var newStatus = G.timeString + " [" + G.lumenCounter + "/5] " + G.currentStatusLine;
+        var newStatus = G.timeString + " [" + G.lumenCounter + "/9] " + G.currentStatusLine;
         PS.statusText(newStatus);
     },
 
@@ -795,12 +1075,13 @@ PS.init = function( system, options ) {
     PS.data(1, 7, 1);
 
     //Initialize colorLevel array
-    for(var i = 0; i < 6; i++) {
+    for(var i = 0; i < 9; i++) {
         G.levelColored[i] = [false, false, false];
         G.levelSpotlighted[i] = [false, false, false];
         G.levelLOSlight[i] = [false, false, false];
     }
     G.levelSpotlighted[4] = [true, true, true];
+    //G.levelLOSlight[7] = [true, true, true];
 
     //Load Audio
     PS.audioLoad( "warp-in", {fileTypes: ["wav"], path: "audio/", volume : 0.5} );
