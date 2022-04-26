@@ -1133,6 +1133,7 @@ PS.init = function( system, options ) {
     G.levelTimedlight[6] = [true, true, true];
 
     //Load Audio
+    PS.audioLoad( "bgMusic", {fileTypes: ["mp3"], path: "audio/", loop : true, volume : 0.8} );
     PS.audioLoad( "warp-in", {fileTypes: ["wav"], path: "audio/", volume : 0.5} );
     PS.audioLoad( "warp-out", {fileTypes: ["wav"], path: "audio/", volume : 0.5} );
     PS.audioLoad( "color-transform", {fileTypes: ["wav"], path: "audio/", volume : 0.5} );
@@ -1140,6 +1141,9 @@ PS.init = function( system, options ) {
     G.loadLevel(1, 0);
 
     PS.timerStart(5, G.moveTick);
+
+    //Play music
+    PS.audioPlay( "bgMusic", {fileTypes: ["mp3"], path: "audio/", loop : true, volume : 0.8} );
 
     //Make starting player circle and fix bgColor
     PS.radius(1, 7, 50);
