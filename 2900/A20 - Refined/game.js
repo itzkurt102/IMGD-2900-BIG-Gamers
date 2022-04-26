@@ -62,7 +62,7 @@ var G = {
     activeLevel: 0,
     activeSubLevel: 0,
     spotLighted: [], //Keeps track of current level's spots that need to be spotlighted
-    lumenCounter: 0, //Counts the number of lumens collected
+    lumenCounter: 8, //Counts the number of lumens collected
     lumensFound: {}, //Stores the lumens that have been found so we can "save" player progress
     currentStatusLine: "", //A string that is the main status text
     levelColored: [], //Stores which levels are colored
@@ -78,6 +78,7 @@ var G = {
     secondFlag: 0, //Counter that ranges from 0-60 that resets every second elapsed
     gameOver: false, //Flag for game over
     timedLightY: 0,
+    timedLightX: 0,
 
     //Loads the given map
     loadMap: function(map) {
@@ -126,8 +127,8 @@ var G = {
                     else {
                         PS.bgColor(x, y, G.FLOOR_COLOR);
                     }
-                    PS.bgAlpha(x, y, 255);
-                    G.spotLighted.push([x,y]);
+                    //PS.bgAlpha(x, y, 255);
+                    //G.spotLighted.push([x,y]);
                 }
             }
         }
@@ -371,7 +372,7 @@ var G = {
                             [0,1,0,0,1,0,1,0,1,1,1,0,1,0,0],
                             [0,1,1,1,1,0,1,0,0,0,0,0,1,0,0],
                             [0,0,0,0,0,0,1,0,1,1,1,0,1,0,0],
-                            [0,1,1,1,1,1,1,0,1,0,1,0,1,7,0],
+                            [0,1,1,1,1,1,1,0,1,0,1,0,1,1,0],
                             [0,1,0,0,0,0,0,0,1,0,1,0,0,0,0],
                             [0,1,0,1,1,1,0,1,1,0,1,1,1,1,0],
                             [0,1,0,1,0,1,0,1,0,0,0,0,0,1,0],
@@ -613,7 +614,7 @@ var G = {
                         if(G.lumenCounter === 0) {
                             G.currentStatusLine = "Well, I guess that's it...";
                         }
-                        else if(G.lumenCounter > 0 && G.lumenCounter < 9) {
+                        else if(G.lumenCounter > 0 && G.lumenCounter < 8) {
                             G.currentStatusLine = "I wonder if I missed anything...";
                         }
 
@@ -720,8 +721,9 @@ var G = {
                 //ENTRANCE - Need to move to new level
 
 
-                if(G.activeSubLevel === 0) {
+                if(G.activeSubLevel === 0 || G.activeLevel >= 7) {
                     //If in the main "hub" level, entrances follow these rules:
+
 
                     if(newY === 7) {
                         //If y is in the middle of the level, we know it is going to next/previous level
@@ -731,7 +733,7 @@ var G = {
                             PS.audioPlay( "warp-in", {fileTypes: ["wav"], path: "audio/", volume : 1.0} );
                             newX = newX-11;
 
-                            if(G.activeLevel === 6 && G.lumenCounter === 9) {
+                            if(G.activeLevel === 6 && G.lumenCounter === 8) {
                                 G.loadLevel(G.activeLevel + 1, 1);
                             }
                             else {
@@ -744,7 +746,13 @@ var G = {
                             PS.audioPlay( "warp-out", {fileTypes: ["wav"], path: "audio/", volume : 1.0} );
                             //If we are going to the previous level
                             newX = newX+11;
-                            G.loadLevel(G.activeLevel - 1, 0);
+                            if(G.activeLevel === 8 && G.lumenCounter === 8) {
+                                G.loadLevel(G.activeLevel - 1, 1);
+                            }
+                            else {
+                                G.loadLevel(G.activeLevel - 1, 0);
+                            }
+
                             G.playerPos = [newX, newY];
                             PS.spriteMove(G.playerSprite, newX, newY);
                         }
@@ -1005,10 +1013,15 @@ var G = {
 
 
         G.timedLightY++;
+        G.timedLightX++;
         if(G.timedLightY === G.DIMENSION) {
             G.timedLightY = 0;
         }
+        if(G.timedLightX === G.DIMENSION) {
+            G.timedLightX = 0;
+        }
         PS.alpha(PS.ALL, G.timedLightY, 255);
+        PS.alpha(G.timedLightX, PS.ALL, 255);
 
         //Light up everything else that needs to be lit up
         for(var s = 0; s < G.spotLighted.length; s++) {
@@ -1020,7 +1033,7 @@ var G = {
 
     //Automatically updates status with the lumen count
     newStatus: function() {
-        var newStatus = G.timeString + " [" + G.lumenCounter + "/9] " + G.currentStatusLine;
+        var newStatus = G.timeString + " [" + G.lumenCounter + "/8] " + G.currentStatusLine;
         PS.statusText(newStatus);
     },
 
