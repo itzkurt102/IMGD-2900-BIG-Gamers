@@ -62,7 +62,7 @@ var G = {
     activeLevel: 0,
     activeSubLevel: 0,
     spotLighted: [], //Keeps track of current level's spots that need to be spotlighted
-    lumenCounter: 8, //Counts the number of lumens collected
+    lumenCounter: 0, //Counts the number of lumens collected
     lumensFound: {}, //Stores the lumens that have been found so we can "save" player progress
     currentStatusLine: "", //A string that is the main status text
     levelColored: [], //Stores which levels are colored
