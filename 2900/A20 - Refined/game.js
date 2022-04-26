@@ -62,12 +62,13 @@ var G = {
     activeLevel: 0,
     activeSubLevel: 0,
     spotLighted: [], //Keeps track of current level's spots that need to be spotlighted
-    lumenCounter: 8, //Counts the number of lumens collected
+    lumenCounter: 0, //Counts the number of lumens collected
     lumensFound: {}, //Stores the lumens that have been found so we can "save" player progress
     currentStatusLine: "", //A string that is the main status text
     levelColored: [], //Stores which levels are colored
     levelSpotlighted: [], //Stores which levels are spotlighted
     levelLOSlight: [], //Stores which levels are LOS lighted
+    levelTimedlight: [],
     moveLock: false, //locks player movement while colors are transforming
     color_fade_timer: "", //stores the current fade timer for color transformations
     moveX: 0, //for movement
@@ -76,6 +77,7 @@ var G = {
     secondsPlayed: 0, //Seconds the player has played
     secondFlag: 0, //Counter that ranges from 0-60 that resets every second elapsed
     gameOver: false, //Flag for game over
+    timedLightY: 0,
 
     //Loads the given map
     loadMap: function(map) {
@@ -206,7 +208,8 @@ var G = {
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]];
 
-                        PS.statusText("WASD/Arrow Keys to move.");
+                        G.currentStatusLine = "WASD/Arrows make me move.";
+                        G.newStatus();
                         G.activeLevel = 1;
                         G.activeSubLevel = 0;
                         G.loadMap(map);
@@ -240,8 +243,8 @@ var G = {
                             [0,0,0,0,0,0,0,0,0,0,0,4,0,0,0],
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]];
 
-                        PS.statusText("Maybe that does something...");
-                        G.currentStatusLine =  "Maybe that does something...";
+
+                        G.currentStatusLine =  "Maybe that thing does something";
                         G.activeLevel = 2;
                         G.activeSubLevel = 0;
                         G.loadMap(map);
@@ -275,7 +278,7 @@ var G = {
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]];
 
-                        G.currentStatusLine = "Hmm...I wonder where that goes...";
+                        G.currentStatusLine = "Where does that new one go?";
                         G.newStatus();
                         G.activeLevel = 3;
                         G.activeSubLevel = 0;
@@ -299,7 +302,7 @@ var G = {
                             [0,1,1,1,1,0,1,0,1,1,1,1,1,1,0],
                             [0,0,0,0,0,0,3,0,0,0,0,0,0,0,0]];
 
-                        G.currentStatusLine = "Well this is different...";
+                        G.currentStatusLine = "Well this looks different...";
                         G.newStatus();
                         G.activeLevel = 3;
                         G.activeSubLevel = 1;
@@ -403,7 +406,7 @@ var G = {
                             [0,3,1,1,1,0,0,0,0,0,0,0,0,0,0],
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]];
 
-                        G.currentStatusLine = "Status";
+                        G.currentStatusLine = "The lights are wierd in here too";
                         G.newStatus();
                         G.activeLevel = 5;
                         G.activeSubLevel = 0;
@@ -476,7 +479,7 @@ var G = {
                             [0,3,1,0,0,0,0,0,0,0,0,0,0,0,0],
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]];
 
-                        G.currentStatusLine = "Status";
+                        G.currentStatusLine = "Light seems to move when I do";
                         G.newStatus();
                         G.activeLevel = 6;
                         G.activeSubLevel = 0;
@@ -537,18 +540,19 @@ var G = {
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                            [0,0,2,2,2,2,2,2,2,2,2,2,2,0,0],
+                            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                             [0,3,1,1,1,1,1,1,1,1,1,1,1,2,0],
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                            [0,0,2,2,2,2,2,2,2,2,2,2,2,0,0],
+                            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]];
 
+                        G.currentStatusLine = "Maybe that's the end?";
                         G.gameOver = false;
                         G.newStatus();
                         G.activeLevel = 7;
@@ -564,7 +568,7 @@ var G = {
                             [0,0,2,2,2,2,2,2,2,2,2,2,2,0,0],
                             [0,0,1,1,1,1,1,1,1,1,1,1,1,0,0],
                             [0,0,1,1,1,1,1,1,1,1,1,1,1,0,0],
-                            [0,3,1,1,1,1,1,1,1,1,1,1,1,2,0],
+                            [0,3,1,1,1,1,1,1,1,1,1,1,1,0,0],
                             [0,0,1,1,1,1,1,1,1,1,1,1,1,0,0],
                             [0,0,1,1,1,1,1,1,1,1,1,1,1,0,0],
                             [0,0,2,2,2,2,2,2,2,2,2,2,2,0,0],
@@ -573,6 +577,7 @@ var G = {
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]];
 
+                        G.currentStatusLine = "I think this is it!";
                         G.gameOver = false;
                         G.newStatus();
                         G.activeLevel = 7;
@@ -606,7 +611,7 @@ var G = {
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]];
 
                         if(G.lumenCounter === 0) {
-                            G.currentStatusLine = "Well, this seems like the end...";
+                            G.currentStatusLine = "Well, I guess that's it...";
                         }
                         else if(G.lumenCounter > 0 && G.lumenCounter < 9) {
                             G.currentStatusLine = "I wonder if I missed anything...";
@@ -725,7 +730,7 @@ var G = {
                             //If we are going to the next level
                             PS.audioPlay( "warp-in", {fileTypes: ["wav"], path: "audio/", volume : 1.0} );
                             newX = newX-11;
-                            PS.debug(G.activeLevel + " " + G.lumenCounter);
+
                             if(G.activeLevel === 6 && G.lumenCounter === 9) {
                                 G.loadLevel(G.activeLevel + 1, 1);
                             }
@@ -834,8 +839,11 @@ var G = {
         else if(G.levelLOSlight[G.activeLevel][G.activeSubLevel]) {
             G.losLight(newX, newY);
         }
-        else if(G.activeLevel === 8 || G.activeLevel === 9) {
-            //Different lighting
+        else if(G.levelTimedlight[G.activeLevel][G.activeSubLevel]) {
+            PS.bgAlpha(PS.ALL, PS.ALL, 0);
+            PS.alpha(PS.ALL, PS.ALL, 255);
+            PS.bgAlpha(newX, newY, 255);
+            G.timedLight();
         }
 
     },
@@ -896,10 +904,10 @@ var G = {
 
         //If first lumen, set to special status line
         if(G.lumenCounter === 0) {
-            G.currentStatusLine = "Huh...well that's new";
+            G.currentStatusLine = "Woah...what just happened?";
         }
         if(G.activeLevel === 4) {
-            G.currentStatusLine = "Oh...these make everything bright!";
+            G.currentStatusLine = "Oh...these make it easy to see!";
         }
         //if(G.activeLevel === 4 && G.activeSubLevel === 2) {
         //    G.currentStatusLine = "I bet the other one is still there..."
@@ -926,6 +934,14 @@ var G = {
         if(G.levelSpotlighted[G.activeLevel][G.activeSubLevel]) {
             PS.alpha(PS.ALL, PS.ALL, PS.DEFAULT);
             G.levelSpotlighted[G.activeLevel][G.activeSubLevel] = false;
+        }
+        if(G.levelLOSlight[G.activeLevel][G.activeSubLevel]) {
+            PS.alpha(PS.ALL, PS.ALL, PS.DEFAULT);
+            G.levelLOSlight[G.activeLevel][G.activeSubLevel] = false;
+        }
+        if(G.levelTimedlight[G.activeLevel][G.activeSubLevel]) {
+            PS.alpha(PS.ALL, PS.ALL, PS.DEFAULT);
+            G.levelTimedlight[G.activeLevel][G.activeSubLevel] = false;
         }
 
         G.moveLock = true;
@@ -981,6 +997,24 @@ var G = {
             centerX = G.spotLighted[s][0];
             centerY = G.spotLighted[s][1];
             PS.alpha(centerX, centerY, 255);
+        }
+    },
+
+    timedLight: function() {
+        PS.alpha(PS.ALL, PS.ALL, 0);
+
+
+        G.timedLightY++;
+        if(G.timedLightY === G.DIMENSION) {
+            G.timedLightY = 0;
+        }
+        PS.alpha(PS.ALL, G.timedLightY, 255);
+
+        //Light up everything else that needs to be lit up
+        for(var s = 0; s < G.spotLighted.length; s++) {
+            var x = G.spotLighted[s][0];
+            var y = G.spotLighted[s][1];
+            PS.alpha(x, y, 255);
         }
     },
 
@@ -1079,9 +1113,11 @@ PS.init = function( system, options ) {
         G.levelColored[i] = [false, false, false];
         G.levelSpotlighted[i] = [false, false, false];
         G.levelLOSlight[i] = [false, false, false];
+        G.levelTimedlight[i] = [false, false, false];
     }
     G.levelSpotlighted[4] = [true, true, true];
-    //G.levelLOSlight[7] = [true, true, true];
+    G.levelLOSlight[5] = [true, true, true];
+    G.levelTimedlight[6] = [true, true, true];
 
     //Load Audio
     PS.audioLoad( "warp-in", {fileTypes: ["wav"], path: "audio/", volume : 0.5} );
