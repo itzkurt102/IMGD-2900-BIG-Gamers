@@ -157,6 +157,9 @@ var G = {
                         else {
                             PS.color(x, y, G.FLOOR_COLOR);
                         }
+                        if(y === 7) {
+                            G.spotLighted.push([x, y]);
+                        }
                         PS.data(x, y, 1);
                         break;
                     case 2:
