@@ -338,7 +338,13 @@ var G = {
                             [0,3,0,0,0,0,0,0,0,0,0,0,0,0,0],
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]];
 
-                        G.currentStatusLine = "Uhh...who turned out the lights?";
+                        if((G.lumensFound[6] !== -1 && G.lumensFound[6] !== null) || (G.lumensFound[8] !== -1 && G.lumensFound[8] !== null)) {
+                            G.currentStatusLine = "Well, they are still off here...";
+                        }
+                        else {
+                            G.currentStatusLine = "Uhh...who turned out the lights?";
+                        }
+
                         G.newStatus();
                         G.activeLevel = 4;
                         G.activeSubLevel = 0;
