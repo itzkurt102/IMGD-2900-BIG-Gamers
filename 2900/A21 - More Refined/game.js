@@ -197,13 +197,11 @@ var G = {
             if(G.activeMusic === "bad") {
                 PS.audioFade(G.badMusic, 1.0, 0.0, 1000);
                 PS.audioFade(G.goodMusic, 0.0, 1.0, 1000);
-
                 G.activeMusic = "good";
             }
         }
         else {
             if(G.activeMusic === "good") {
-                PS.debug("Here")
                 PS.audioFade(G.goodMusic, 1.0, 0.0, 1000);
                 PS.audioFade(G.badMusic, 0.0, 1.0, 1000);
                 G.activeMusic = "bad";
