@@ -46,7 +46,8 @@ var G = {
     FLOOR_COLOR: 0x383838,
     PLAYER_COLOR: 0xEAF6F2,
     ENTRANCE_COLOR: 0x2BFF80,
-    FINAL_EXIT_COLOR: PS.COLOR_RED,
+    COMPLETE_ENTRANCE_COLOR: PS.COLOR_CYAN,
+    FINAL_EXIT_COLOR: PS.COLOR_YELLOW,
     //Format for lumen colors: [LUMEN, WALL, FLOOR]
     LUMEN_COLORS: [
         [0xD95032,0x141726,0xD95032],
@@ -79,6 +80,9 @@ var G = {
     gameOver: false, //Flag for game over
     timedLightY: 0,
     timedLightX: 0,
+    badMusic: "",
+    goodMusic: "",
+    activeMusic: "bad",
 
     //Loads the given map
     loadMap: function(map) {
@@ -157,7 +161,7 @@ var G = {
                         else {
                             PS.color(x, y, G.FLOOR_COLOR);
                         }
-                        if(y === 7) {
+                        if(G.activeSubLevel === 0 && y === 7) {
                             G.spotLighted.push([x, y]);
                         }
                         PS.data(x, y, 1);
@@ -170,6 +174,15 @@ var G = {
 
                     case 3:
                         //ENTRANCE
+                        if(y !== 7 && G.activeSubLevel === 0) {
+                            //If this is an enterence to a sublevel, we need to check if it is complete
+                            if((y < 7 && G.levelColored[G.activeLevel][1]) || (y > 7 && G.levelColored[G.activeLevel][2])) {
+                                PS.color(x, y, G.COMPLETE_ENTRANCE_COLOR);
+                                PS.data(x, y, 3);
+                                G.spotLighted.push([x,y]);
+                                break;
+                            }
+                        }
                         PS.color(x, y, G.ENTRANCE_COLOR);
                         PS.data(x, y, 3);
                         G.spotLighted.push([x,y]);
@@ -180,7 +193,22 @@ var G = {
                 }
             }
         }
+        if(G.levelColored[G.activeLevel][G.activeSubLevel]) {
+            if(G.activeMusic === "bad") {
+                PS.audioFade(G.badMusic, 1.0, 0.0, 1000);
+                PS.audioFade(G.goodMusic, 0.0, 1.0, 1000);
 
+                G.activeMusic = "good";
+            }
+        }
+        else {
+            if(G.activeMusic === "good") {
+                PS.debug("Here")
+                PS.audioFade(G.goodMusic, 1.0, 0.0, 1000);
+                PS.audioFade(G.badMusic, 0.0, 1.0, 1000);
+                G.activeMusic = "bad";
+            }
+        }
     },
 
 
@@ -338,7 +366,8 @@ var G = {
                             [0,3,0,0,0,0,0,0,0,0,0,0,0,0,0],
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]];
 
-                        if((G.lumensFound[6] !== -1 && G.lumensFound[6] !== null) || (G.lumensFound[8] !== -1 && G.lumensFound[8] !== null)) {
+
+                        if(G.levelColored[4][1] || G.levelColored[4][2]) {
                             G.currentStatusLine = "Well, they are still off here...";
                         }
                         else {
@@ -411,9 +440,9 @@ var G = {
                             [0,0,1,0,0,0,0,0,0,0,0,0,0,0,0],
                             [0,0,1,0,0,0,0,0,0,0,0,0,0,0,0],
                             [0,0,1,0,0,0,0,0,0,0,0,0,0,0,0],
-                            [0,0,1,1,1,0,0,0,0,0,0,0,0,0,0],
-                            [0,0,0,0,1,0,0,0,0,0,0,0,0,0,0],
-                            [3,1,1,1,1,0,0,0,0,0,0,0,0,0,0],
+                            [1,1,1,0,0,0,0,0,0,0,0,0,0,0,0],
+                            [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                            [1,1,3,0,0,0,0,0,0,0,0,0,0,0,0],
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]];
 
                         G.currentStatusLine = "The lights are wierd in here too";
@@ -446,7 +475,7 @@ var G = {
                         break;
                     case 2:
                         var map = [
-                            [3,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                            [0,3,1,1,1,1,1,1,1,1,1,1,1,1,1],
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                             [1,1,1,1,1,1,1,1,1,1,1,1,1,0,1],
                             [1,0,0,0,0,0,0,0,0,0,0,0,1,0,1],
@@ -474,7 +503,7 @@ var G = {
                     case 0:
                         var map = [
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,3],
+                            [1,1,1,1,1,1,1,1,1,1,1,1,3,0,0],
                             [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                             [1,1,1,1,1,1,1,1,1,1,0,0,0,0,0],
                             [0,0,0,0,0,0,0,0,0,1,0,0,0,0,0],
@@ -484,9 +513,9 @@ var G = {
                             [0,0,1,0,0,0,0,0,0,0,0,0,0,0,0],
                             [0,0,1,0,0,0,0,0,0,0,0,0,0,0,0],
                             [0,0,1,0,0,0,0,0,0,0,0,0,0,0,0],
-                            [0,0,1,0,0,0,0,0,0,0,0,0,0,0,0],
-                            [0,0,1,0,0,0,0,0,0,0,0,0,0,0,0],
-                            [3,1,1,0,0,0,0,0,0,0,0,0,0,0,0],
+                            [0,0,1,1,1,0,0,0,0,0,0,0,0,0,0],
+                            [0,0,0,0,1,0,0,0,0,0,0,0,0,0,0],
+                            [0,0,3,1,1,0,0,0,0,0,0,0,0,0,0],
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]];
 
                         G.currentStatusLine = "Light seems to move when I do";
@@ -510,8 +539,8 @@ var G = {
                             [1,0,1,1,1,1,1,0,1,1,1,1,1,1,0],
                             [1,0,1,1,1,1,1,0,1,1,1,1,1,1,0],
                             [1,0,1,1,1,1,1,0,1,1,1,1,1,1,0],
-                            [1,0,1,1,1,1,1,1,1,1,1,1,1,0,0],
-                            [1,1,1,1,1,1,1,0,1,1,1,1,1,1,3]];
+                            [1,0,1,1,1,1,1,1,1,1,0,0,0,1,1],
+                            [1,1,1,1,1,1,1,0,1,1,0,3,1,1,1]];
 
                         G.activeLevel = 6;
                         G.activeSubLevel = 1;
@@ -519,9 +548,9 @@ var G = {
                         break;
                     case 2:
                         var map = [
-                            [3,1,1,0,1,1,1,1,0,1,1,1,1,1,0],
-                            [0,0,1,0,1,0,0,1,1,1,0,0,1,0,0],
-                            [0,1,1,1,1,1,0,1,0,0,0,1,1,1,1],
+                            [1,1,1,3,0,1,1,1,0,1,1,1,1,1,0],
+                            [1,0,0,0,0,0,0,1,1,1,0,0,1,0,0],
+                            [1,1,1,1,1,1,0,1,0,0,0,1,1,1,1],
                             [1,1,0,1,1,1,1,1,1,1,0,1,0,1,1],
                             [1,1,0,0,1,0,0,0,1,0,0,1,0,0,1],
                             [0,1,1,1,1,0,1,1,1,1,1,1,1,0,1],
@@ -800,9 +829,6 @@ var G = {
                         newY = newY-12;
                         if(G.activeLevel >= 5) {
                             newY--;
-                            if(G.activeLevel === 6) {
-                                newX -= 2;
-                            }
                         }
                         G.loadLevel(G.activeLevel, 0);
                         G.playerPos = [newX, newY];
@@ -812,7 +838,6 @@ var G = {
                         newY = newY+12;
                         if(G.activeLevel >= 5) {
                             newY++;
-                            newX += 2;
                         }
                         G.loadLevel(G.activeLevel, 0);
                         G.playerPos = [newX, newY];
@@ -1152,8 +1177,17 @@ PS.init = function( system, options ) {
 
     PS.timerStart(5, G.moveTick);
 
-    //Play music
-    PS.audioPlay( "bgMusic", {fileTypes: ["mp3"], path: "audio/", loop : true, volume : 1.0} );
+    //Load music
+    var loader1 = function(data) {
+        G.badMusic = data.channel;
+    }
+    var loader2 = function(data) {
+        G.goodMusic = data.channel;
+    }
+    PS.audioPlay( "bgMusic", {fileTypes: ["mp3"], path: "audio/", loop : true, volume : 1.0, onLoad: loader1});
+    PS.audioPlay( "bgMusicGood", {fileTypes: ["mp3"], path: "audio/", loop : true, volume : 0.0, onLoad: loader2});
+
+
 
     //Make starting player circle and fix bgColor
     PS.radius(1, 7, 50);
