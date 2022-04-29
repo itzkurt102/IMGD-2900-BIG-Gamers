@@ -1166,7 +1166,6 @@ PS.init = function( system, options ) {
     G.levelColored[8] = [false, true, false];
 
     //Load Audio
-    PS.audioLoad( "bgMusic", {fileTypes: ["mp3"], path: "audio/", loop : true, volume : 1.0} );
     PS.audioLoad( "warp-in", {fileTypes: ["wav"], path: "audio/", volume : 0.5} );
     PS.audioLoad( "warp-out", {fileTypes: ["wav"], path: "audio/", volume : 0.5} );
     PS.audioLoad( "color-transform", {fileTypes: ["wav"], path: "audio/", volume : 0.5} );
@@ -1182,7 +1181,7 @@ PS.init = function( system, options ) {
     var loader2 = function(data) {
         G.goodMusic = data.channel;
     }
-    PS.audioPlay( "bgMusic", {fileTypes: ["mp3"], path: "audio/", loop : true, volume : 1.0, onLoad: loader1});
+    PS.audioPlay( "bgMusic", {fileTypes: ["mp3"], path: "audio/", loop : true, volume : 0.5, onLoad: loader1});
     PS.audioPlay( "bgMusicGood", {fileTypes: ["wav"], path: "audio/", loop : true, volume : 0.0, onLoad: loader2});
 
 
