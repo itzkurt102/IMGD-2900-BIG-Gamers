@@ -1185,7 +1185,7 @@ PS.init = function( system, options ) {
         G.goodMusic = data.channel;
     }
     PS.audioPlay( "bgMusic", {fileTypes: ["mp3"], path: "audio/", loop : true, volume : 0.5, onLoad: loader1});
-    PS.audioPlay( "bgMusicGood", {fileTypes: ["wav"], path: "audio/", loop : true, volume : 0.0, onLoad: loader2});
+    PS.audioPlay( "bgMusicGood", {fileTypes: ["mp3"], path: "audio/", loop : true, volume : 0.0, onLoad: loader2});
 
 
 
