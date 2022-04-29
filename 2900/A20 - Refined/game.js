@@ -407,7 +407,7 @@ var G = {
                             [3,1,1,1,1,0,0,0,0,0,0,0,0,0,0],
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]];
 
-                        G.currentStatusLine = "The lights are wierd in here too";
+                        G.currentStatusLine = "The lights are weird in here too";
                         G.newStatus();
                         G.activeLevel = 5;
                         G.activeSubLevel = 0;
