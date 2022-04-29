@@ -195,15 +195,15 @@ var G = {
         }
         if(G.levelColored[G.activeLevel][G.activeSubLevel]) {
             if(G.activeMusic === "bad") {
-                PS.audioFade(G.badMusic, 1.0, 0.0, 1000);
-                PS.audioFade(G.goodMusic, 0.0, 1.0, 1000);
+                PS.audioFade(G.badMusic, 0.5, 0.0, 1000);
+                PS.audioFade(G.goodMusic, 0.0, 0.5, 1000);
                 G.activeMusic = "good";
             }
         }
         else {
             if(G.activeMusic === "good") {
-                PS.audioFade(G.goodMusic, 1.0, 0.0, 1000);
-                PS.audioFade(G.badMusic, 0.0, 1.0, 1000);
+                PS.audioFade(G.goodMusic, 0.5, 0.0, 1000);
+                PS.audioFade(G.badMusic, 0.0, 0.5, 1000);
                 G.activeMusic = "bad";
             }
         }
@@ -460,10 +460,10 @@ var G = {
                             [1,1,1,1,1,1,1,1,1,1,1,0,1,0,1],
                             [0,0,0,0,0,0,0,0,0,0,1,0,1,0,1],
                             [1,1,1,1,1,1,1,1,1,1,1,0,1,0,1],
-                            [1,0,0,0,0,0,0,0,0,0,0,0,1,0,1],
-                            [1,1,1,1,1,1,1,1,1,1,1,0,1,0,1],
-                            [0,0,0,0,0,0,0,0,0,0,1,0,1,0,1],
-                            [1,1,1,1,1,1,1,1,1,1,1,0,1,0,1],
+                            [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                            [1,1,1,1,1,1,1,1,1,1,1,1,1,0,1],
+                            [0,0,0,0,0,0,0,0,0,0,0,0,1,0,1],
+                            [1,1,1,1,1,1,1,1,1,1,1,1,1,0,1],
                             [1,0,0,0,0,0,0,1,0,0,1,0,0,0,1],
                             [1,1,1,1,1,3,0,1,1,0,1,1,1,1,1]];
 
@@ -1183,7 +1183,7 @@ PS.init = function( system, options ) {
         G.goodMusic = data.channel;
     }
     PS.audioPlay( "bgMusic", {fileTypes: ["mp3"], path: "audio/", loop : true, volume : 1.0, onLoad: loader1});
-    PS.audioPlay( "bgMusicGood", {fileTypes: ["mp3"], path: "audio/", loop : true, volume : 0.0, onLoad: loader2});
+    PS.audioPlay( "bgMusicGood", {fileTypes: ["wav"], path: "audio/", loop : true, volume : 0.0, onLoad: loader2});
 
 
 
