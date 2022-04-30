@@ -81,8 +81,9 @@ var G = {
     secondsPlayed: 0, //Seconds the player has played
     secondFlag: 0, //Counter that ranges from 0-60 that resets every second elapsed
     gameOver: false, //Flag for game over
-    timedLightY: 0,
-    timedLightX: 0,
+    moveLightY: 0, //Keeps track of X and Y of the movementLight
+    moveLightX: 0,
+    moveLightCounter: 0,
     badMusic: "",
     goodMusic: "",
     activeMusic: "bad",
@@ -100,54 +101,53 @@ var G = {
         //Randomly picks a lumen color set
         G.activeLumenIndex = PS.random(G.LUMEN_COLORS.length) - 1;
 
-        //Load lumens in first to check if they have been picked up and
+        //Go through the full map and load lumens in first
         for(var x = 0; x < G.DIMENSION; x++) {
             for (var y = 0; y < G.DIMENSION; y++) {
-                if(map[y][x] >= 4) {
 
+                if(map[y][x] >= 4) { //Anything over 4 is a lumen
+
+                    //Check if it has been loaded
                     if(G.lumensFound[map[y][x]] === null) {
-                        //This means it is first time being loaded
+                        //This means it is first time being loaded, so we set it to a default value
                         G.lumensFound[map[y][x]] = -1;
                     }
                     else if(G.lumensFound[map[y][x]] >= 0) {
                         //This means it was already found, so we want to not load it back in, we treat it like floor
-                        //FLOOR
                         G.activeLumenIndex = G.lumensFound[map[y][x]];
+
+                        //Set ground color according to if colored or not
                         if(G.levelColored[G.activeLevel][G.activeSubLevel]) {
                             PS.color(x, y, G.LUMEN_COLORS[G.lumensFound[map[y][x]]][2]);
                         }
                         else {
                             PS.color(x, y, G.FLOOR_COLOR);
                         }
+
+                        //Set data accordingly (as a floor)
                         PS.data(x, y, 1);
                         break;
                     }
 
-
+                    //This case is hit when the lumen is not collected.
+                    //We set the color and data accordingly and set it to a small circle
                     PS.color(x, y, G.LUMEN_COLORS[G.activeLumenIndex][0]);
                     PS.data(x, y, map[y][x]);
                     PS.radius(x, y, 50);
                     PS.scale(x, y, 50);
-                    if(G.levelColored[G.activeLevel][G.activeSubLevel]) {
-                        PS.bgColor(x, y, G.LUMEN_COLORS[G.activeLumenIndex][2]);
-                    }
-                    else {
-                        PS.bgColor(x, y, G.FLOOR_COLOR);
-                    }
-                    //PS.bgAlpha(x, y, 255);
-                    //G.spotLighted.push([x,y]);
                 }
             }
         }
 
 
-
+        //We go through the whole map again, this time skipping the lumens (they have already been loaded or dealt with)
         for(var x = 0; x < G.DIMENSION; x++) {
             for (var y = 0; y < G.DIMENSION; y++) {
-                //Go through the whole map
+
+                //Go through the whole map, based on bead id
                 switch(map[y][x]) {
                     case 0:
-                        //WALL
+                        //WALL - color according to either level color or default
                         if(G.levelColored[G.activeLevel][G.activeSubLevel]) {
                             PS.color(x, y, G.LUMEN_COLORS[G.activeLumenIndex][1]);
                         }
@@ -157,20 +157,22 @@ var G = {
                         break;
 
                     case 1:
-                        //FLOOR
+                        //FLOOR - color according to either level color or default
                         if(G.levelColored[G.activeLevel][G.activeSubLevel]) {
                             PS.color(x, y, G.LUMEN_COLORS[G.activeLumenIndex][2]);
                         }
                         else {
                             PS.color(x, y, G.FLOOR_COLOR);
                         }
+
+                        //If it is in the center, make sure it is always lit up
                         if(G.activeSubLevel === 0 && y === 7) {
                             G.spotLighted.push([x, y]);
                         }
                         PS.data(x, y, 1);
                         break;
                     case 2:
-                        //Final exit
+                        //Final exit - color and set data
                         PS.color(x, y, G.FINAL_EXIT_COLOR);
                         PS.data(x, y, 2);
                         break;
@@ -180,6 +182,7 @@ var G = {
                         if(y !== 7 && G.activeSubLevel === 0) {
                             //If this is an enterence to a sublevel, we need to check if it is complete
                             if((y < 7 && G.levelColored[G.activeLevel][1]) || (y > 7 && G.levelColored[G.activeLevel][2])) {
+                                //If it has been completed, we color it differently
                                 PS.color(x, y, G.COMPLETE_ENTRANCE_COLOR);
                                 PS.data(x, y, 3);
                                 G.spotLighted.push([x,y]);
@@ -190,40 +193,44 @@ var G = {
                         PS.data(x, y, 3);
                         G.spotLighted.push([x,y]);
                         break;
-                    default:
-
-                        break;
                 }
             }
         }
+
+        //After level is loaded, we handle music
+
         if(G.levelColored[G.activeLevel][G.activeSubLevel]) {
             if(G.activeMusic === "bad") {
+                //If the level is colored and the music is set to bad, we fade in good music
                 PS.audioFade(G.badMusic, 0.5, 0.0, 1000);
-                PS.audioFade(G.goodMusic, 0.0, 0.5, 1000);
+                PS.audioFade(G.goodMusic, 0.0, 1.0, 1000);
                 G.activeMusic = "good";
             }
         }
         else {
             if(G.activeMusic === "good") {
-                PS.audioFade(G.goodMusic, 0.5, 0.0, 1000);
+                //If the level is NOT colored and the music is set to good, we fade in bad music
+                PS.audioFade(G.goodMusic, 1.0, 0.0, 1000);
                 PS.audioFade(G.badMusic, 0.0, 0.5, 1000);
                 G.activeMusic = "bad";
             }
         }
     },
 
-
+    //Load the level given
     loadLevel: function(level, subLevel) {
         //Default colors
         PS.alpha(PS.ALL, PS.ALL, 255);
 
-
-
+        //nested switch statement with level and sublevel.
+        //Sublevel 0 is main hub, Sublevel 1 is above main hub, Sublevel 2 is below main hub
         switch(level) {
             case 1:
                 switch(subLevel) {
                     case 0:
-                        //Level Map: (0=wall, 1=floor, 2=final exit, 3=entrance, 4+=lumen)
+                        //Each sublevel defines a map, sets a new status line, sets the active level variables,
+                        //and then loads the map
+                        //Level Map: (0=wall, 1=floor, 2=final exit, 3=entrance, 4+=lumen (unique id))
                         var map = [
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -650,6 +657,7 @@ var G = {
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]];
 
+                        //Status changes based on how many lumens were collected
                         if(G.lumenCounter === 0) {
                             G.currentStatusLine = "Well, I guess that's it...";
                         }
@@ -657,7 +665,7 @@ var G = {
                             G.currentStatusLine = "I wonder if I missed anything...";
                         }
 
-                        G.gameOver = true;
+                        G.gameOver = true; //sets gameOver, which pauses the clock
                         G.newStatus();
                         G.activeLevel = 8;
                         G.activeSubLevel = 0;
@@ -684,7 +692,7 @@ var G = {
 
                         G.currentStatusLine = "Wow. I found them all!";
 
-                        G.gameOver = true;
+                        G.gameOver = true; //sets gameOver, which pauses the clock
                         G.newStatus();
                         G.activeLevel = 8;
                         G.activeSubLevel = 1;
@@ -699,6 +707,7 @@ var G = {
         }
     },
 
+    //Handles player movement
     movePlayer: function(dx, dy) {
         //calculate new potential location
         var newX = G.playerPos[0] + dx;
@@ -724,9 +733,10 @@ var G = {
                 break;
 
             case 2:
-                if(newY === 7) {
-                    //If y is in the middle of the level, we know it is going to next/previous level
+                //Final Exit - Need to move to new level
 
+                if(newY === 7) {
+                    //If y is in the middle of the level, we know it is going to the "bad ending"
                     if(newX > 7) {
                         //If we are going to the next level
                         PS.audioPlay( "warp-in", {fileTypes: ["wav"], path: "audio/", volume : 1.0} );
@@ -746,10 +756,8 @@ var G = {
 
                 }
                 else {
-                    //If it is above the middle, it is going to sublevel 1
-                    //So we need to clean up player sprite and load next sublevel
+                    //If it is above the middle, it is going to the "good ending"
                     PS.audioPlay( "warp-in", {fileTypes: ["wav"], path: "audio/", volume : 1.0} );
-
                     G.loadLevel(G.activeLevel + 1, 1);
                     G.playerPos = [newX, newY];
                     PS.spriteMove(G.playerSprite, newX, newY);
@@ -758,7 +766,6 @@ var G = {
 
             case 3:
                 //ENTRANCE - Need to move to new level
-
 
                 if(G.activeSubLevel === 0 || G.activeLevel >= 7) {
                     //If in the main "hub" level, entrances follow these rules:
@@ -851,12 +858,15 @@ var G = {
                 break;
 
             default:
+                //Lumens are anything above 4, so everything not handled
                 //LUMEN - Handle pickup and move to location
                 G.playerPos = [newX, newY];
                 PS.spriteMove(G.playerSprite, newX, newY);
                 G.lumenPickup(newX, newY);
                 break;
         }
+
+        //No matter what we do the following:
 
         //Make player circle and fix bgColor
         PS.radius(newX, newY, 50);
@@ -875,7 +885,7 @@ var G = {
         PS.scale(newX-dx, newY-dy, PS.DEFAULT);
 
 
-        //Handle lighting:
+        //Handle lighting if enabled on currently level:
         if(G.levelSpotlighted[G.activeLevel][G.activeSubLevel]) {
             G.spotLight(newX, newY);
         }
@@ -886,15 +896,86 @@ var G = {
             PS.bgAlpha(PS.ALL, PS.ALL, 0);
             PS.alpha(PS.ALL, PS.ALL, 255);
             PS.bgAlpha(newX, newY, 255);
-            G.timedLight();
+            G.movementLight();
         }
 
     },
 
+    //Handles lumen pickup
+    lumenPickup: function(x, y) {
+        //Set back to normal floor bead
+        var lumenID = PS.data(x, y);
+
+        //Set color of bead
+        if(G.levelColored[G.activeLevel][G.activeSubLevel]) {
+            PS.color(x, y, G.LUMEN_COLORS[G.activeLumenIndex][2]);
+        }
+        else {
+            PS.color(x, y, G.FLOOR_COLOR);
+        }
+
+        //Reset shape and bg
+        PS.radius(x, y, PS.DEFAULT);
+        PS.scale(x, y, PS.DEFAULT);
+        PS.bgAlpha(x, y, 0);
+        PS.data(x, y, 1);
+
+        //If first lumen picked up, set to special status line
+        if(G.lumenCounter === 0) {
+            G.currentStatusLine = "Woah...what just happened?";
+        }
+        if(G.activeLevel === 4) {
+            G.currentStatusLine = "Oh...these make it easy to see!";
+        }
+
+        //set metadata for this lumen
+        G.lumenCounter++;
+        G.lumensFound[lumenID] = G.activeLumenIndex;
+
+        G.newStatus(); //reset status with new count
+
+        //play audio clip
+        PS.audioPlay( "lumen-pickup", {fileTypes: ["wav"], path: "audio/", volume : 0.5} );
+
+        //Check to make sure we didnt do it before for this level
+        if(G.levelColored[G.activeLevel][G.activeSubLevel]) {
+            //If we already dealt with the color changing, just end here
+            return;
+        }
+
+        //Once it is picked up, we need to color transform the level
+        //This plays a sound, sets the fade and reloads the level
+        PS.audioPlay( "color-transform", {fileTypes: ["wav"], path: "audio/", volume : 1.0} );
+        G.levelColored[G.activeLevel][G.activeSubLevel] = true;
+        PS.fade(PS.ALL, PS.ALL, 100);
+        G.loadLevel(G.activeLevel, G.activeSubLevel);
+
+        //Turns off lighting for the current level
+        if(G.levelSpotlighted[G.activeLevel][G.activeSubLevel]) {
+            PS.alpha(PS.ALL, PS.ALL, PS.DEFAULT);
+            G.levelSpotlighted[G.activeLevel][G.activeSubLevel] = false;
+        }
+        if(G.levelLOSlight[G.activeLevel][G.activeSubLevel]) {
+            PS.alpha(PS.ALL, PS.ALL, PS.DEFAULT);
+            G.levelLOSlight[G.activeLevel][G.activeSubLevel] = false;
+        }
+        if(G.levelTimedlight[G.activeLevel][G.activeSubLevel]) {
+            PS.alpha(PS.ALL, PS.ALL, PS.DEFAULT);
+            G.levelTimedlight[G.activeLevel][G.activeSubLevel] = false;
+        }
+
+        //While the level is loading, we lock movement and set a timer for the fade to finish
+        G.moveLock = true;
+        G.color_fade_timer = PS.timerStart(101, G.fadeTimer);
+    },
+
+    //Handles spotlight lighting
     spotLight: function(centerX, centerY) {
+
+        //Reset lights on the level
         PS.alpha(PS.ALL, PS.ALL, 0);
 
-        //Spotlight the 9x9 space with x, y at center
+        //Spotlight a 9x9 space with x, y at center
         for(var x = centerX-1; x < centerX+2; x++) {
             for (var y = centerY-1; y < centerY+2; y++) {
                 //Check if out of bounds
@@ -927,72 +1008,9 @@ var G = {
         }
     },
 
-    lumenPickup: function(x, y) {
-        //Set back to normal floor bead
-        var lumenID = PS.data(x, y);
-
-        if(G.levelColored[G.activeLevel][G.activeSubLevel]) {
-            PS.color(x, y, G.LUMEN_COLORS[G.activeLumenIndex][2]);
-        }
-        else {
-            PS.color(x, y, G.FLOOR_COLOR);
-        }
-        PS.radius(x, y, PS.DEFAULT);
-        PS.scale(x, y, PS.DEFAULT);
-        PS.bgAlpha(x, y, 0);
-        PS.data(x, y, 1);
-
-
-
-
-        //If first lumen, set to special status line
-        if(G.lumenCounter === 0) {
-            G.currentStatusLine = "Woah...what just happened?";
-        }
-        if(G.activeLevel === 4) {
-            G.currentStatusLine = "Oh...these make it easy to see!";
-        }
-        //if(G.activeLevel === 4 && G.activeSubLevel === 2) {
-        //    G.currentStatusLine = "I bet the other one is still there..."
-        //}
-
-        G.lumenCounter++;
-        G.lumensFound[lumenID] = G.activeLumenIndex;
-
-        G.newStatus();
-
-        PS.audioPlay( "lumen-pickup", {fileTypes: ["wav"], path: "audio/", volume : 0.5} );
-        //Check to make sure we didnt do it before for this level
-        if(G.levelColored[G.activeLevel][G.activeSubLevel]) {
-            //If we already dealt with the color changing, just end here
-            return;
-        }
-
-        PS.audioPlay( "color-transform", {fileTypes: ["wav"], path: "audio/", volume : 1.0} );
-        G.levelColored[G.activeLevel][G.activeSubLevel] = true;
-
-        PS.fade(PS.ALL, PS.ALL, 100);
-        G.loadLevel(G.activeLevel, G.activeSubLevel);
-
-        if(G.levelSpotlighted[G.activeLevel][G.activeSubLevel]) {
-            PS.alpha(PS.ALL, PS.ALL, PS.DEFAULT);
-            G.levelSpotlighted[G.activeLevel][G.activeSubLevel] = false;
-        }
-        if(G.levelLOSlight[G.activeLevel][G.activeSubLevel]) {
-            PS.alpha(PS.ALL, PS.ALL, PS.DEFAULT);
-            G.levelLOSlight[G.activeLevel][G.activeSubLevel] = false;
-        }
-        if(G.levelTimedlight[G.activeLevel][G.activeSubLevel]) {
-            PS.alpha(PS.ALL, PS.ALL, PS.DEFAULT);
-            G.levelTimedlight[G.activeLevel][G.activeSubLevel] = false;
-        }
-
-        G.moveLock = true;
-        G.color_fade_timer = PS.timerStart(101, G.tick);
-
-    },
-
+    //Light of sight lighting
     losLight: function(centerX, centerY) {
+        //Reset lights on the level
         PS.alpha(PS.ALL, PS.ALL, 0);
 
         //Go up until a wall is hit
@@ -1043,20 +1061,36 @@ var G = {
         }
     },
 
-    timedLight: function() {
+    //Light changes when moving
+    movementLight: function() {
+
+        //Increment movement light counter
+        G.moveLightCounter++;
+
+        //If this is the second move since last light change
+        if(G.moveLightCounter === 2) {
+            //reset the counter
+            G.moveLightCounter = 0;
+
+            //Move the lights forward by one
+            G.moveLightY++;
+            G.moveLightX++;
+
+            //Check if out of bounds, and floor to 0 if so
+            if(G.moveLightY === G.DIMENSION) {
+                G.moveLightY = 0;
+            }
+            if(G.moveLightX === G.DIMENSION) {
+                G.moveLightX = 0;
+            }
+        }
+
+        //Reset all light
         PS.alpha(PS.ALL, PS.ALL, 0);
 
-
-        G.timedLightY++;
-        G.timedLightX++;
-        if(G.timedLightY === G.DIMENSION) {
-            G.timedLightY = 0;
-        }
-        if(G.timedLightX === G.DIMENSION) {
-            G.timedLightX = 0;
-        }
-        PS.alpha(PS.ALL, G.timedLightY, 255);
-        PS.alpha(G.timedLightX, PS.ALL, 255);
+        //Light up the row and column we are at
+        PS.alpha(PS.ALL, G.moveLightY, 255);
+        PS.alpha(G.moveLightX, PS.ALL, 255);
 
         //Light up everything else that needs to be lit up
         for(var s = 0; s < G.spotLighted.length; s++) {
@@ -1064,27 +1098,30 @@ var G = {
             var y = G.spotLighted[s][1];
             PS.alpha(x, y, 255);
         }
+
     },
 
-    //Automatically updates status with the lumen count
+    //Automatically updates status with the lumen count and a timer
     newStatus: function() {
         var newStatus = G.timeString + " [" + G.lumenCounter + "/8] " + G.currentStatusLine;
         PS.statusText(newStatus);
     },
 
-    tick: function() {
+    //timer for the fade. Unlocks movement when over and resets fade, and stops the timer
+    fadeTimer: function() {
         PS.fade(PS.ALL, PS.ALL, PS.DEFAULT);
         G.moveLock = false;
         PS.timerStop(G.color_fade_timer);
     },
 
+    //Timer function that handles calling movement function
     moveTick: function() {
         //Only move if the lumen is not transforming and the player is actually moving
         if (!G.moveLock && (G.moveX !== 0 || G.moveY !== 0)) {
             G.movePlayer(G.moveX, G.moveY);
         }
 
-        //Update timer
+        //Update timer counter
         G.secondFlag += 5;
         if(G.secondFlag === 60) {
             G.secondsPlayed++;
@@ -1093,8 +1130,10 @@ var G = {
         G.gameTime();
     },
 
+    //Updates gameTime
     gameTime: function() {
 
+        //If the game is not over, we recalculate the time and update the status
         if(!G.gameOver) {
             var hours = Math.floor(G.secondsPlayed / 3600);
             var totalSeconds = G.secondsPlayed % 3600;
@@ -1113,9 +1152,7 @@ var G = {
             G.timeString = minutes + inbetween + seconds;
             G.newStatus();
         }
-
     }
-
 }
 
 
@@ -1130,20 +1167,18 @@ Any value returned is ignored.
 */
 
 PS.init = function( system, options ) {
+
+    //Set up defaults
 	PS.gridSize(15, 15);
     PS.border(PS.ALL, PS.ALL, 0);
 	PS.statusText( "Tunnel Vision" );
     PS.statusColor(PS.COLOR_WHITE);
     PS.gridColor(PS.COLOR_BLACK);
 
-    //Load audio
-    PS.audioLoad("fx_coin2");
-    PS.audioLoad("fx_powerup5");
-
     //Makes a sprite that will be the player sprite
     var newSprite = PS.spriteSolid(1, 1);
 
-    //Set sprite properties
+    //Set sprite properties and move it to the start location
     PS.spritePlane(newSprite, 4);
     PS.spriteSolidColor(newSprite, G.PLAYER_COLOR);
     PS.spriteMove(newSprite, 1, 7);
@@ -1163,6 +1198,8 @@ PS.init = function( system, options ) {
         G.levelLOSlight[i] = [false, false, false];
         G.levelTimedlight[i] = [false, false, false];
     }
+
+    //Set specific levels to what they should be
     G.levelSpotlighted[4] = [true, true, true];
     G.levelLOSlight[5] = [true, true, true];
     G.levelTimedlight[6] = [true, true, true];
@@ -1173,11 +1210,14 @@ PS.init = function( system, options ) {
     PS.audioLoad( "warp-out", {fileTypes: ["wav"], path: "audio/", volume : 0.5} );
     PS.audioLoad( "color-transform", {fileTypes: ["wav"], path: "audio/", volume : 0.5} );
     PS.audioLoad( "lumen-pickup", {fileTypes: ["wav"], path: "audio/", volume : 0.5} );
+
+    //Load the first level
     G.loadLevel(1, 0);
 
+    //Start the moveTimer
     PS.timerStart(5, G.moveTick);
 
-    //Load music
+    //Load and play music
     var loader1 = function(data) {
         G.badMusic = data.channel;
     }
@@ -1209,7 +1249,6 @@ This function doesn't have to do anything. Any value returned is ignored.
 PS.keyDown = function( key, shift, ctrl, options ) {
 
     switch(key) {
-
         case 119:
             //W
         case PS.KEY_ARROW_UP:
@@ -1233,7 +1272,6 @@ PS.keyDown = function( key, shift, ctrl, options ) {
         case PS.KEY_ARROW_RIGHT:
             G.moveX = 1;
             break;
-
     }
 
 };
