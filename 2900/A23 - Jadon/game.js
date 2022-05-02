@@ -615,7 +615,13 @@ const W = ( function () {
 		PS.audioStop(_channel);
 		PS.audioPlay( "ending", {fileTypes: ["wav"], path: "audio/", volume : 0.7} );
 		PS.color(5, 5, PS.COLOR_BLACK);
+
+		PS.border(5, 5, 0);
+		PS.fade(5, 5, 1100);
+		PS.gridFade(1100);
+
 		PS.gridColor(PS.COLOR_WHITE);
+		PS.color(5, 5, PS.COLOR_WHITE);
 	};
 
 	// Blackout for level fail

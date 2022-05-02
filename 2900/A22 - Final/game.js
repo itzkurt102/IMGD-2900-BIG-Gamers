@@ -758,6 +758,7 @@ var G = {
                 else {
                     //If it is above the middle, it is going to the "good ending"
                     PS.audioPlay( "warp-in", {fileTypes: ["wav"], path: "audio/", volume : 1.0} );
+                    PS.audioPlay( "victory", {fileTypes: ["wav"], path: "audio/", volume : 0.7} );
                     G.loadLevel(G.activeLevel + 1, 1);
                     G.playerPos = [newX, newY];
                     PS.spriteMove(G.playerSprite, newX, newY);
@@ -1210,6 +1211,7 @@ PS.init = function( system, options ) {
     PS.audioLoad( "warp-out", {fileTypes: ["wav"], path: "audio/", volume : 0.5} );
     PS.audioLoad( "color-transform", {fileTypes: ["wav"], path: "audio/", volume : 0.5} );
     PS.audioLoad( "lumen-pickup", {fileTypes: ["wav"], path: "audio/", volume : 0.5} );
+    PS.audioLoad( "victory", {fileTypes: ["wav"], path: "audio/", volume : 0.7} );
 
     //Load the first level
     G.loadLevel(1, 0);
